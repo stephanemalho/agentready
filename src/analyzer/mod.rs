@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
-use std::path::Path;
+use std::fs;
+use std::path::{Path, PathBuf};
 
 use anyhow::{Context, bail};
 use ignore::WalkBuilder;
@@ -31,7 +32,43 @@ pub struct HealthChecks {
     pub tests: bool,
 }
 
-pub fn analyze_repository(path: impl AsRef<Path>) -> anyhow::Result<RepoAnalysis> {
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RepositorySnapshot {
+    pub root: PathBuf,
+    pub files: Vec<String>,
+    pub top_level_directories: Vec<String>,
+}
+
+impl RepositorySnapshot {
+    pub fn root_display(&self) -> String {
+        self.root.display().to_string()
+    }
+
+    pub fn has_file(&self, file: &str) -> bool {
+        self.files.iter().any(|candidate| candidate == file)
+    }
+
+    pub fn has_dir(&self, dir: &str) -> bool {
+        let prefix = format!("{}/", dir.trim_end_matches('/'));
+        self.files.iter().any(|file| file.starts_with(&prefix))
+    }
+
+    pub fn files_under(&self, dir: &str) -> Vec<String> {
+        let prefix = format!("{}/", dir.trim_end_matches('/'));
+        self.files
+            .iter()
+            .filter(|file| file.starts_with(&prefix))
+            .cloned()
+            .collect()
+    }
+
+    pub fn read_file(&self, file: &str) -> anyhow::Result<String> {
+        fs::read_to_string(self.root.join(file))
+            .with_context(|| format!("failed to read {}", self.root.join(file).display()))
+    }
+}
+
+pub fn snapshot_repository(path: impl AsRef<Path>) -> anyhow::Result<RepositorySnapshot> {
     let root = path.as_ref();
 
     if !root.exists() {
@@ -94,19 +131,31 @@ pub fn analyze_repository(path: impl AsRef<Path>) -> anyhow::Result<RepoAnalysis
 
     files.sort();
 
-    Ok(RepoAnalysis {
-        root: root.display().to_string(),
-        file_count: files.len(),
+    Ok(RepositorySnapshot {
+        root,
+        files,
         top_level_directories: top_level_directories.into_iter().collect(),
-        detected_stacks: detect_stacks(&files),
+    })
+}
+
+pub fn analyze_repository(path: impl AsRef<Path>) -> anyhow::Result<RepoAnalysis> {
+    let snapshot = snapshot_repository(path)?;
+
+    Ok(RepoAnalysis {
+        root: snapshot.root_display(),
+        file_count: snapshot.files.len(),
+        top_level_directories: snapshot.top_level_directories,
+        detected_stacks: detect_stacks(&snapshot.files),
         health: HealthChecks {
-            readme: has_any(&files, &["README.md", "README.markdown"]),
-            gitignore: has_any(&files, &[".gitignore"]),
-            ci: files
+            readme: has_any(&snapshot.files, &["README.md", "README.markdown"]),
+            gitignore: has_any(&snapshot.files, &[".gitignore"]),
+            ci: snapshot
+                .files
                 .iter()
                 .any(|file| file.starts_with(".github/workflows/")),
-            license: has_any(&files, &["LICENSE", "LICENSE.md", "COPYING"]),
-            tests: files
+            license: has_any(&snapshot.files, &["LICENSE", "LICENSE.md", "COPYING"]),
+            tests: snapshot
+                .files
                 .iter()
                 .any(|file| file.starts_with("tests/") || file.ends_with("_test.rs")),
         },

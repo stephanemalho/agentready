@@ -9,7 +9,7 @@
 | Evidence | File paths that justify a detected stack or health signal | Product definition |
 | Health check | A lightweight boolean signal about repository readiness | Product definition |
 | Report | Markdown or JSON output generated from local repository files | Product definition |
-| Agent context | Concise, safe information that an AI coding agent can read before editing | Product direction |
+| Harness readiness | Evidence-based checks that determine whether a repository is prepared for Codex, Claude Code, Gemini CLI, or similar coding-agent harnesses | Product direction |
 
 ## Invariants
 
@@ -19,6 +19,7 @@
 - RepoLens must respect `.gitignore` when walking repositories.
 - RepoLens must not print secret values discovered in files.
 - JSON output must remain machine-readable and generated from serializable analysis structs.
+- Harness readiness checks must validate local files and configuration only; they must not claim that a model will follow instructions.
 
 ## Workflows
 
@@ -38,10 +39,18 @@
 4. Success state: terminal output lists `ok` or `warn` for each health check.
 5. Failure handling: return a non-zero exit code with a clear error message.
 
+### Check Harness Readiness
+
+1. Trigger: user runs `repolens harness <path>`.
+2. Preconditions: `<path>` exists and is a directory.
+3. Steps: validate shared agent workflow files, Codex adapter files, Claude Code adapter files, and Gemini CLI adapter files.
+4. Success state: readiness report is printed to stdout or written to the requested output file.
+5. Failure handling: return a non-zero exit code only for unreadable paths or serialization errors; missing readiness files should be represented as failed checks.
+
 ## Copy And UX Rules
 
 - Preferred wording: short English labels, concrete file evidence, plain terminal output.
-- Forbidden wording: claims that RepoLens performed AI reasoning in V1.
+- Forbidden wording: claims that RepoLens performed AI reasoning or executed a model.
 - Locale/language: public repo copy should be English.
 - Accessibility expectations: CLI output should work in plain terminals and CI logs.
 

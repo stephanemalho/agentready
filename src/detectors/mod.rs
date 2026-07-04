@@ -17,7 +17,7 @@ pub fn detect_stacks(files: &[String]) -> Vec<DetectedStack> {
 
     if has_all(files, &["AGENTS.md", "CLAUDE.md", "GEMINI.md"]) {
         stacks.push(DetectedStack {
-            name: "Multi-harness AI agents".to_string(),
+            name: "Multi-harness coding agents".to_string(),
             evidence: vec![
                 "AGENTS.md".to_string(),
                 "CLAUDE.md".to_string(),
@@ -92,6 +92,6 @@ mod tests {
         assert!(names.contains(&"Rust"));
         assert!(names.contains(&"Docker"));
         assert!(names.contains(&"GitHub Actions"));
-        assert!(names.contains(&"Multi-harness AI agents"));
+        assert!(names.contains(&"Multi-harness coding agents"));
     }
 }

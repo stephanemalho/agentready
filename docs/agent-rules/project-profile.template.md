@@ -5,13 +5,13 @@
 - Project name: RepoLens
 - Repository: `git@github.com:stephanemalho/repolens.git`
 - Primary maintainer: Stephane Malho
-- Product/domain: developer tooling, repository analysis, AI-agent onboarding context
-- Audience/users: software developers, technical project maintainers, and AI coding agents working inside existing repositories
+- Product/domain: developer tooling, repository analysis, coding-agent harness readiness
+- Audience/users: software developers, technical project maintainers, and teams preparing repositories for Codex, Claude Code, Gemini CLI, or similar harnesses
 - Critical user workflows:
   - scan a local repository and print a Markdown report
   - scan a local repository and print machine-readable JSON
   - run a quick repository health check with `doctor`
-  - use generated reports as safe context for AI agents
+  - verify whether a repository is ready for multi-harness coding-agent work
 
 ## Stack
 
