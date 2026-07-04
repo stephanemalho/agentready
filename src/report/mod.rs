@@ -97,14 +97,22 @@ pub fn render_harness_markdown(report: &HarnessReadinessReport) -> String {
         output.push_str(&format!("\n## {}\n\n", harness.label()));
         for check in checks {
             output.push_str(&format!(
-                "- {} **{}**: {}\n",
+                "- {} **{}** (`{}`, severity: {}): {}\n",
                 status_marker(check.status),
                 check.title,
+                check.id,
+                check.severity.label(),
                 check.message
             ));
 
             if !check.evidence.is_empty() {
                 output.push_str(&format!("  Evidence: `{}`\n", check.evidence.join("`, `")));
+            }
+
+            output.push_str(&format!("  Source: {}\n", check.source));
+
+            if let Some(remediation) = &check.remediation {
+                output.push_str(&format!("  Remediation: {remediation}\n"));
             }
         }
     }
@@ -146,6 +154,7 @@ fn _assert_health_checks_are_used(_: &HealthChecks) {}
 #[cfg(test)]
 mod tests {
     use crate::analyzer::{DetectedStack, HealthChecks, RepoAnalysis};
+    use crate::harness::Severity;
 
     use super::*;
 
@@ -180,7 +189,33 @@ mod tests {
 
     #[test]
     fn renders_harness_readiness() {
-        let report = HarnessReadinessReport {
+        let report = sample_harness_report();
+
+        let markdown = render_harness_markdown(&report);
+
+        assert!(markdown.contains("# RepoLens Harness Readiness"));
+        assert!(markdown.contains("Score: `75/100`"));
+        assert!(markdown.contains("## Codex"));
+        assert!(markdown.contains("[!] **Codex skills**"));
+        assert!(markdown.contains("`codex.skills.present`"));
+        assert!(markdown.contains("severity: low"));
+        assert!(markdown.contains("Source: https://developers.openai.com/codex/skills"));
+        assert!(markdown.contains("Remediation: Add at least one skill."));
+    }
+
+    #[test]
+    fn renders_harness_json_with_rule_fields() {
+        let report = sample_harness_report();
+
+        let json = render_harness_json(&report).expect("json");
+
+        assert!(json.contains("\"id\": \"shared.agents_md.exists\""));
+        assert!(json.contains("\"severity\": \"high\""));
+        assert!(json.contains("\"remediation\": \"Add at least one skill.\""));
+    }
+
+    fn sample_harness_report() -> HarnessReadinessReport {
+        HarnessReadinessReport {
             root: "/tmp/demo".to_string(),
             score: 75,
             summary: crate::harness::HarnessSummary {
@@ -191,28 +226,27 @@ mod tests {
             checks: vec![
                 crate::harness::HarnessCheck {
                     harness: HarnessName::Shared,
+                    id: "shared.agents_md.exists".to_string(),
+                    severity: Severity::High,
                     status: CheckStatus::Pass,
                     title: "Canonical AGENTS.md".to_string(),
                     message: "AGENTS.md found.".to_string(),
                     evidence: vec!["AGENTS.md".to_string()],
-                    source: "docs".to_string(),
+                    source: "https://developers.openai.com/codex/guides/agents-md".to_string(),
+                    remediation: None,
                 },
                 crate::harness::HarnessCheck {
                     harness: HarnessName::Codex,
+                    id: "codex.skills.present".to_string(),
+                    severity: Severity::Low,
                     status: CheckStatus::Warn,
                     title: "Codex skills".to_string(),
                     message: "No skills found.".to_string(),
                     evidence: vec![".agents/skills/".to_string()],
-                    source: "docs".to_string(),
+                    source: "https://developers.openai.com/codex/skills".to_string(),
+                    remediation: Some("Add at least one skill.".to_string()),
                 },
             ],
-        };
-
-        let markdown = render_harness_markdown(&report);
-
-        assert!(markdown.contains("# RepoLens Harness Readiness"));
-        assert!(markdown.contains("Score: `75/100`"));
-        assert!(markdown.contains("## Codex"));
-        assert!(markdown.contains("[!] **Codex skills**"));
+        }
     }
 }

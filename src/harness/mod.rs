@@ -29,11 +29,15 @@ pub struct HarnessSummary {
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct HarnessCheck {
     pub harness: HarnessName,
+    pub id: String,
+    pub severity: Severity,
     pub status: CheckStatus,
     pub title: String,
     pub message: String,
     pub evidence: Vec<String>,
     pub source: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub remediation: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
@@ -63,6 +67,225 @@ pub enum CheckStatus {
     Warn,
     Fail,
 }
+
+#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum Severity {
+    Info,
+    Low,
+    Medium,
+    High,
+}
+
+impl Severity {
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Info => "info",
+            Self::Low => "low",
+            Self::Medium => "medium",
+            Self::High => "high",
+        }
+    }
+}
+
+#[derive(Debug)]
+struct Rule {
+    harness: HarnessName,
+    id: &'static str,
+    severity: Severity,
+    title: &'static str,
+    remediation: &'static str,
+    source: &'static str,
+}
+
+const RULE_SHARED_AGENTS_MD: Rule = Rule {
+    harness: HarnessName::Shared,
+    id: "shared.agents_md.exists",
+    severity: Severity::High,
+    title: "Canonical AGENTS.md",
+    remediation: "Create AGENTS.md at the repository root and make it the canonical agent entrypoint.",
+    source: "https://developers.openai.com/codex/guides/agents-md",
+};
+
+const RULE_SHARED_AGENT_RULES: Rule = Rule {
+    harness: HarnessName::Shared,
+    id: "shared.agent_rules.readme",
+    severity: Severity::Medium,
+    title: "Shared agent rules",
+    remediation: "Add docs/agent-rules/README.md with the harness-neutral project rules.",
+    source: "docs/agent-rules/README.md",
+};
+
+const RULE_SHARED_SKILLS: Rule = Rule {
+    harness: HarnessName::Shared,
+    id: "shared.skills.present",
+    severity: Severity::Low,
+    title: "Reusable workflows",
+    remediation: "Add reusable workflow documents under docs/skills/.",
+    source: "docs/skills/",
+};
+
+const RULE_SHARED_PREFLIGHT: Rule = Rule {
+    harness: HarnessName::Shared,
+    id: "shared.scripts.preflight",
+    severity: Severity::Medium,
+    title: "Agent preflight",
+    remediation: "Add scripts/agent-preflight.sh so agents can verify branch and sync state before working.",
+    source: "AGENTS.md",
+};
+
+const RULE_SHARED_SYNC_MAIN: Rule = Rule {
+    harness: HarnessName::Shared,
+    id: "shared.scripts.sync_main",
+    severity: Severity::Medium,
+    title: "Main sync helper",
+    remediation: "Add scripts/agent-sync-main.sh so agents can catch up with origin/main deterministically.",
+    source: "AGENTS.md",
+};
+
+const RULE_SHARED_CI_CONTROL: Rule = Rule {
+    harness: HarnessName::Shared,
+    id: "shared.ci.agent_control",
+    severity: Severity::Medium,
+    title: "CI branch policy",
+    remediation: "Add .github/workflows/agent-control.yml to enforce branch and template policy in CI.",
+    source: ".github/workflows/agent-control.yml",
+};
+
+const RULE_CODEX_CONFIG_TOML: Rule = Rule {
+    harness: HarnessName::Codex,
+    id: "codex.config.valid_toml",
+    severity: Severity::High,
+    title: "Codex config",
+    remediation: "Create .codex/config.toml with valid TOML for Codex project configuration.",
+    source: "https://developers.openai.com/codex/config-reference",
+};
+
+const RULE_CODEX_CONFIG_AGENTS: Rule = Rule {
+    harness: HarnessName::Codex,
+    id: "codex.config.references_agents_md",
+    severity: Severity::Medium,
+    title: "Codex config references AGENTS.md",
+    remediation: "Reference AGENTS.md from .codex/config.toml so Codex loads the canonical rules.",
+    source: "https://developers.openai.com/codex/guides/agents-md",
+};
+
+const RULE_CODEX_SKILLS: Rule = Rule {
+    harness: HarnessName::Codex,
+    id: "codex.skills.present",
+    severity: Severity::Low,
+    title: "Codex skills",
+    remediation: "Add at least one reusable skill as .agents/skills/<name>/SKILL.md.",
+    source: "https://developers.openai.com/codex/skills",
+};
+
+const RULE_CLAUDE_ADAPTER: Rule = Rule {
+    harness: HarnessName::Claude,
+    id: "claude.adapter.exists",
+    severity: Severity::High,
+    title: "Claude adapter",
+    remediation: "Create CLAUDE.md so Claude Code loads the project memory entrypoint.",
+    source: "https://code.claude.com/docs/en/memory",
+};
+
+const RULE_CLAUDE_IMPORTS_AGENTS: Rule = Rule {
+    harness: HarnessName::Claude,
+    id: "claude.adapter.imports_agents_md",
+    severity: Severity::Medium,
+    title: "Claude imports AGENTS.md",
+    remediation: "Add an @AGENTS.md import to CLAUDE.md instead of duplicating rules.",
+    source: "https://code.claude.com/docs/en/memory",
+};
+
+const RULE_CLAUDE_SETTINGS_JSON: Rule = Rule {
+    harness: HarnessName::Claude,
+    id: "claude.settings.valid_json",
+    severity: Severity::Medium,
+    title: "Claude settings",
+    remediation: "Create .claude/settings.json with valid JSON project settings.",
+    source: "https://code.claude.com/docs/en/settings",
+};
+
+const RULE_CLAUDE_RULES_README: Rule = Rule {
+    harness: HarnessName::Claude,
+    id: "claude.rules.readme",
+    severity: Severity::Low,
+    title: "Claude rules directory",
+    remediation: "Add .claude/rules/README.md describing Claude-specific rule loading.",
+    source: "https://code.claude.com/docs/en/memory",
+};
+
+const RULE_CLAUDE_LOCAL_SETTINGS: Rule = Rule {
+    harness: HarnessName::Claude,
+    id: "claude.settings.local_untracked",
+    severity: Severity::High,
+    title: "Claude local settings are untracked",
+    remediation: "Remove .claude/settings.local.json from version control and keep it machine-local.",
+    source: "https://code.claude.com/docs/en/settings",
+};
+
+const RULE_GEMINI_ADAPTER: Rule = Rule {
+    harness: HarnessName::Gemini,
+    id: "gemini.adapter.exists",
+    severity: Severity::High,
+    title: "Gemini adapter",
+    remediation: "Create GEMINI.md so Gemini CLI loads project context.",
+    source: "https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html",
+};
+
+const RULE_GEMINI_IMPORTS_AGENTS: Rule = Rule {
+    harness: HarnessName::Gemini,
+    id: "gemini.adapter.imports_agents_md",
+    severity: Severity::Medium,
+    title: "Gemini imports AGENTS.md",
+    remediation: "Add an @AGENTS.md import to GEMINI.md instead of duplicating rules.",
+    source: "https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html",
+};
+
+const RULE_GEMINI_SETTINGS_JSON: Rule = Rule {
+    harness: HarnessName::Gemini,
+    id: "gemini.settings.valid_json",
+    severity: Severity::Medium,
+    title: "Gemini settings",
+    remediation: "Create .gemini/settings.json with valid JSON settings.",
+    source: "https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html",
+};
+
+const RULE_GEMINI_CONTEXT_AGENTS: Rule = Rule {
+    harness: HarnessName::Gemini,
+    id: "gemini.settings.context_agents",
+    severity: Severity::Medium,
+    title: "Gemini AGENTS.md context",
+    remediation: "Add AGENTS.md to context.fileName in .gemini/settings.json.",
+    source: "https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html",
+};
+
+const RULE_GEMINI_AGENTS: Rule = Rule {
+    harness: HarnessName::Gemini,
+    id: "gemini.agents.present",
+    severity: Severity::Low,
+    title: "Gemini subagents",
+    remediation: "Add subagent definitions under .gemini/agents/*.md.",
+    source: "https://github.com/google-gemini/gemini-cli/blob/main/docs/core/subagents.md",
+};
+
+const RULE_GEMINI_COMMANDS: Rule = Rule {
+    harness: HarnessName::Gemini,
+    id: "gemini.commands.present",
+    severity: Severity::Low,
+    title: "Gemini commands",
+    remediation: "Add command definitions under .gemini/commands/.",
+    source: "https://geminicli.com/docs/reference/commands/",
+};
+
+const RULE_GEMINI_COMMAND_TOML: Rule = Rule {
+    harness: HarnessName::Gemini,
+    id: "gemini.commands.valid_toml",
+    severity: Severity::Medium,
+    title: "Gemini command TOML",
+    remediation: "Fix the command definition so it parses as valid TOML.",
+    source: "https://geminicli.com/docs/reference/commands/",
+};
 
 pub fn analyze_harness_readiness(
     path: impl AsRef<std::path::Path>,
@@ -99,56 +322,44 @@ fn add_shared_checks(snapshot: &RepositorySnapshot, checks: &mut Vec<HarnessChec
     check_exists(
         snapshot,
         checks,
-        HarnessName::Shared,
-        "Canonical AGENTS.md",
+        &RULE_SHARED_AGENTS_MD,
         "AGENTS.md",
         "Root AGENTS.md gives agents a predictable project entrypoint.",
-        "https://developers.openai.com/codex/guides/agents-md",
     );
     check_exists(
         snapshot,
         checks,
-        HarnessName::Shared,
-        "Shared agent rules",
+        &RULE_SHARED_AGENT_RULES,
         "docs/agent-rules/README.md",
         "Shared project rules should live outside harness-specific adapters.",
-        "docs/agent-rules/README.md",
     );
     check_dir(
         snapshot,
         checks,
-        HarnessName::Shared,
-        "Reusable workflows",
+        &RULE_SHARED_SKILLS,
         "docs/skills",
         "Neutral workflows should be available for every harness.",
-        "docs/skills/",
     );
     check_exists(
         snapshot,
         checks,
-        HarnessName::Shared,
-        "Agent preflight",
+        &RULE_SHARED_PREFLIGHT,
         "scripts/agent-preflight.sh",
         "Agents need a deterministic branch and main-sync check before working.",
-        "AGENTS.md",
     );
     check_exists(
         snapshot,
         checks,
-        HarnessName::Shared,
-        "Main sync helper",
+        &RULE_SHARED_SYNC_MAIN,
         "scripts/agent-sync-main.sh",
         "Agents need a repeatable way to catch up with origin/main.",
-        "AGENTS.md",
     );
     check_exists(
         snapshot,
         checks,
-        HarnessName::Shared,
-        "CI branch policy",
+        &RULE_SHARED_CI_CONTROL,
         ".github/workflows/agent-control.yml",
         "The repo should enforce branch and template controls before merge.",
-        ".github/workflows/agent-control.yml",
     );
 }
 
@@ -156,37 +367,29 @@ fn add_codex_checks(snapshot: &RepositorySnapshot, checks: &mut Vec<HarnessCheck
     check_toml_file(
         snapshot,
         checks,
-        HarnessName::Codex,
-        "Codex config",
+        &RULE_CODEX_CONFIG_TOML,
         ".codex/config.toml",
         "Codex project configuration should parse as TOML.",
-        "https://developers.openai.com/codex/config-reference",
     );
     check_file_contains(
         snapshot,
         checks,
-        HarnessName::Codex,
-        "Codex config references AGENTS.md",
+        &RULE_CODEX_CONFIG_AGENTS,
         ".codex/config.toml",
         "AGENTS.md",
-        "https://developers.openai.com/codex/guides/agents-md",
     );
     let skill_files = skill_files(snapshot, ".agents/skills");
     if skill_files.is_empty() {
         checks.push(HarnessCheck::warn(
-            HarnessName::Codex,
-            "Codex skills",
+            &RULE_CODEX_SKILLS,
             "No .agents/skills/*/SKILL.md files were found.",
             vec![".agents/skills/".to_string()],
-            "https://developers.openai.com/codex/skills",
         ));
     } else {
         checks.push(HarnessCheck::pass(
-            HarnessName::Codex,
-            "Codex skills",
+            &RULE_CODEX_SKILLS,
             "Codex skills are available for reusable workflows.",
             skill_files,
-            "https://developers.openai.com/codex/skills",
         ));
     }
 }
@@ -195,54 +398,42 @@ fn add_claude_checks(snapshot: &RepositorySnapshot, checks: &mut Vec<HarnessChec
     check_exists(
         snapshot,
         checks,
-        HarnessName::Claude,
-        "Claude adapter",
+        &RULE_CLAUDE_ADAPTER,
         "CLAUDE.md",
         "Claude Code should have project memory instructions.",
-        "https://code.claude.com/docs/en/memory",
     );
     check_file_contains(
         snapshot,
         checks,
-        HarnessName::Claude,
-        "Claude imports AGENTS.md",
+        &RULE_CLAUDE_IMPORTS_AGENTS,
         "CLAUDE.md",
         "@AGENTS.md",
-        "https://code.claude.com/docs/en/memory",
     );
     check_json_file(
         snapshot,
         checks,
-        HarnessName::Claude,
-        "Claude settings",
+        &RULE_CLAUDE_SETTINGS_JSON,
         ".claude/settings.json",
         "Claude project settings should parse as JSON.",
-        "https://code.claude.com/docs/en/settings",
     );
     check_exists(
         snapshot,
         checks,
-        HarnessName::Claude,
-        "Claude rules directory",
+        &RULE_CLAUDE_RULES_README,
         ".claude/rules/README.md",
         "Claude rules should be explicit when project-specific Claude behavior is needed.",
-        "https://code.claude.com/docs/en/memory",
     );
     if snapshot.has_file(".claude/settings.local.json") {
         checks.push(HarnessCheck::fail(
-            HarnessName::Claude,
-            "Claude local settings are untracked",
+            &RULE_CLAUDE_LOCAL_SETTINGS,
             ".claude/settings.local.json should not be committed.",
             vec![".claude/settings.local.json".to_string()],
-            "https://code.claude.com/docs/en/settings",
         ));
     } else {
         checks.push(HarnessCheck::pass(
-            HarnessName::Claude,
-            "Claude local settings are untracked",
+            &RULE_CLAUDE_LOCAL_SETTINGS,
             "No committed .claude/settings.local.json file was found.",
             vec![".claude/settings.local.example.json".to_string()],
-            "https://code.claude.com/docs/en/settings",
         ));
     }
 }
@@ -251,29 +442,23 @@ fn add_gemini_checks(snapshot: &RepositorySnapshot, checks: &mut Vec<HarnessChec
     check_exists(
         snapshot,
         checks,
-        HarnessName::Gemini,
-        "Gemini adapter",
+        &RULE_GEMINI_ADAPTER,
         "GEMINI.md",
         "Gemini CLI should have a project context file.",
-        "https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html",
     );
     check_file_contains(
         snapshot,
         checks,
-        HarnessName::Gemini,
-        "Gemini imports AGENTS.md",
+        &RULE_GEMINI_IMPORTS_AGENTS,
         "GEMINI.md",
         "@AGENTS.md",
-        "https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html",
     );
     check_json_file(
         snapshot,
         checks,
-        HarnessName::Gemini,
-        "Gemini settings",
+        &RULE_GEMINI_SETTINGS_JSON,
         ".gemini/settings.json",
         "Gemini settings should parse as JSON.",
-        "https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html",
     );
     check_gemini_context(snapshot, checks);
     check_gemini_agents(snapshot, checks);
@@ -281,11 +466,9 @@ fn add_gemini_checks(snapshot: &RepositorySnapshot, checks: &mut Vec<HarnessChec
     let command_files = snapshot.files_under(".gemini/commands");
     if command_files.is_empty() {
         checks.push(HarnessCheck::warn(
-            HarnessName::Gemini,
-            "Gemini commands",
+            &RULE_GEMINI_COMMANDS,
             "No .gemini/commands files were found.",
             vec![".gemini/commands/".to_string()],
-            "https://geminicli.com/docs/reference/commands/",
         ));
         return;
     }
@@ -294,11 +477,9 @@ fn add_gemini_checks(snapshot: &RepositorySnapshot, checks: &mut Vec<HarnessChec
         check_toml_file(
             snapshot,
             checks,
-            HarnessName::Gemini,
-            "Gemini command TOML",
+            &RULE_GEMINI_COMMAND_TOML,
             &file,
             "Gemini command definitions should parse as TOML.",
-            "https://geminicli.com/docs/reference/commands/",
         );
     }
 }
@@ -306,11 +487,9 @@ fn add_gemini_checks(snapshot: &RepositorySnapshot, checks: &mut Vec<HarnessChec
 fn check_gemini_context(snapshot: &RepositorySnapshot, checks: &mut Vec<HarnessCheck>) {
     let Ok(contents) = snapshot.read_file(".gemini/settings.json") else {
         checks.push(HarnessCheck::fail(
-            HarnessName::Gemini,
-            "Gemini AGENTS.md context",
+            &RULE_GEMINI_CONTEXT_AGENTS,
             ".gemini/settings.json could not be read.",
             vec![".gemini/settings.json".to_string()],
-            "https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html",
         ));
         return;
     };
@@ -326,19 +505,15 @@ fn check_gemini_context(snapshot: &RepositorySnapshot, checks: &mut Vec<HarnessC
 
     if includes_agents {
         checks.push(HarnessCheck::pass(
-            HarnessName::Gemini,
-            "Gemini AGENTS.md context",
+            &RULE_GEMINI_CONTEXT_AGENTS,
             "Gemini settings include AGENTS.md as a context file.",
             vec![".gemini/settings.json".to_string()],
-            "https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html",
         ));
     } else {
         checks.push(HarnessCheck::warn(
-            HarnessName::Gemini,
-            "Gemini AGENTS.md context",
+            &RULE_GEMINI_CONTEXT_AGENTS,
             "Gemini settings do not explicitly include AGENTS.md in context.fileName.",
             vec![".gemini/settings.json".to_string()],
-            "https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html",
         ));
     }
 }
@@ -352,19 +527,15 @@ fn check_gemini_agents(snapshot: &RepositorySnapshot, checks: &mut Vec<HarnessCh
 
     if agent_files.is_empty() {
         checks.push(HarnessCheck::warn(
-            HarnessName::Gemini,
-            "Gemini subagents",
+            &RULE_GEMINI_AGENTS,
             "No .gemini/agents/*.md files were found.",
             vec![".gemini/agents/".to_string()],
-            "https://github.com/google-gemini/gemini-cli/blob/main/docs/core/subagents.md",
         ));
     } else {
         checks.push(HarnessCheck::pass(
-            HarnessName::Gemini,
-            "Gemini subagents",
+            &RULE_GEMINI_AGENTS,
             "Gemini subagent definitions are present.",
             agent_files,
-            "https://github.com/google-gemini/gemini-cli/blob/main/docs/core/subagents.md",
         ));
     }
 }
@@ -372,27 +543,17 @@ fn check_gemini_agents(snapshot: &RepositorySnapshot, checks: &mut Vec<HarnessCh
 fn check_exists(
     snapshot: &RepositorySnapshot,
     checks: &mut Vec<HarnessCheck>,
-    harness: HarnessName,
-    title: &str,
+    rule: &Rule,
     file: &str,
     message: &str,
-    source: &str,
 ) {
     if snapshot.has_file(file) {
-        checks.push(HarnessCheck::pass(
-            harness,
-            title,
-            message,
-            vec![file.to_string()],
-            source,
-        ));
+        checks.push(HarnessCheck::pass(rule, message, vec![file.to_string()]));
     } else {
         checks.push(HarnessCheck::fail(
-            harness,
-            title,
+            rule,
             &format!("Missing required file: {file}"),
             vec![file.to_string()],
-            source,
         ));
     }
 }
@@ -400,27 +561,17 @@ fn check_exists(
 fn check_dir(
     snapshot: &RepositorySnapshot,
     checks: &mut Vec<HarnessCheck>,
-    harness: HarnessName,
-    title: &str,
+    rule: &Rule,
     dir: &str,
     message: &str,
-    source: &str,
 ) {
     if snapshot.has_dir(dir) {
-        checks.push(HarnessCheck::pass(
-            harness,
-            title,
-            message,
-            vec![dir.to_string()],
-            source,
-        ));
+        checks.push(HarnessCheck::pass(rule, message, vec![dir.to_string()]));
     } else {
         checks.push(HarnessCheck::warn(
-            harness,
-            title,
+            rule,
             &format!("No files were found under {dir}/"),
             vec![dir.to_string()],
-            source,
         ));
     }
 }
@@ -428,33 +579,25 @@ fn check_dir(
 fn check_file_contains(
     snapshot: &RepositorySnapshot,
     checks: &mut Vec<HarnessCheck>,
-    harness: HarnessName,
-    title: &str,
+    rule: &Rule,
     file: &str,
     needle: &str,
-    source: &str,
 ) {
     match snapshot.read_file(file) {
         Ok(contents) if contents.contains(needle) => checks.push(HarnessCheck::pass(
-            harness,
-            title,
+            rule,
             &format!("{file} references {needle}."),
             vec![file.to_string()],
-            source,
         )),
         Ok(_) => checks.push(HarnessCheck::warn(
-            harness,
-            title,
+            rule,
             &format!("{file} does not reference {needle}."),
             vec![file.to_string()],
-            source,
         )),
         Err(_) => checks.push(HarnessCheck::fail(
-            harness,
-            title,
+            rule,
             &format!("Missing or unreadable file: {file}"),
             vec![file.to_string()],
-            source,
         )),
     }
 }
@@ -462,35 +605,23 @@ fn check_file_contains(
 fn check_json_file(
     snapshot: &RepositorySnapshot,
     checks: &mut Vec<HarnessCheck>,
-    harness: HarnessName,
-    title: &str,
+    rule: &Rule,
     file: &str,
     message: &str,
-    source: &str,
 ) {
     match snapshot.read_file(file) {
         Ok(contents) => match serde_json::from_str::<JsonValue>(&contents) {
-            Ok(_) => checks.push(HarnessCheck::pass(
-                harness,
-                title,
-                message,
-                vec![file.to_string()],
-                source,
-            )),
+            Ok(_) => checks.push(HarnessCheck::pass(rule, message, vec![file.to_string()])),
             Err(error) => checks.push(HarnessCheck::fail(
-                harness,
-                title,
+                rule,
                 &format!("{file} is not valid JSON: {error}"),
                 vec![file.to_string()],
-                source,
             )),
         },
         Err(_) => checks.push(HarnessCheck::fail(
-            harness,
-            title,
+            rule,
             &format!("Missing or unreadable file: {file}"),
             vec![file.to_string()],
-            source,
         )),
     }
 }
@@ -498,35 +629,23 @@ fn check_json_file(
 fn check_toml_file(
     snapshot: &RepositorySnapshot,
     checks: &mut Vec<HarnessCheck>,
-    harness: HarnessName,
-    title: &str,
+    rule: &Rule,
     file: &str,
     message: &str,
-    source: &str,
 ) {
     match snapshot.read_file(file) {
         Ok(contents) => match toml::from_str::<toml::Value>(&contents) {
-            Ok(_) => checks.push(HarnessCheck::pass(
-                harness,
-                title,
-                message,
-                vec![file.to_string()],
-                source,
-            )),
+            Ok(_) => checks.push(HarnessCheck::pass(rule, message, vec![file.to_string()])),
             Err(error) => checks.push(HarnessCheck::fail(
-                harness,
-                title,
+                rule,
                 &format!("{file} is not valid TOML: {error}"),
                 vec![file.to_string()],
-                source,
             )),
         },
         Err(_) => checks.push(HarnessCheck::fail(
-            harness,
-            title,
+            rule,
             &format!("Missing or unreadable file: {file}"),
             vec![file.to_string()],
-            source,
         )),
     }
 }
@@ -567,62 +686,83 @@ fn score(summary: &HarnessSummary) -> u8 {
 }
 
 impl HarnessCheck {
-    fn pass(
-        harness: HarnessName,
-        title: &str,
-        message: &str,
-        evidence: Vec<String>,
-        source: &str,
-    ) -> Self {
-        Self::new(harness, CheckStatus::Pass, title, message, evidence, source)
+    fn pass(rule: &Rule, message: &str, evidence: Vec<String>) -> Self {
+        Self::new(rule, CheckStatus::Pass, message, evidence, None)
     }
 
-    fn warn(
-        harness: HarnessName,
-        title: &str,
-        message: &str,
-        evidence: Vec<String>,
-        source: &str,
-    ) -> Self {
-        Self::new(harness, CheckStatus::Warn, title, message, evidence, source)
+    fn warn(rule: &Rule, message: &str, evidence: Vec<String>) -> Self {
+        Self::new(
+            rule,
+            CheckStatus::Warn,
+            message,
+            evidence,
+            Some(rule.remediation.to_string()),
+        )
     }
 
-    fn fail(
-        harness: HarnessName,
-        title: &str,
-        message: &str,
-        evidence: Vec<String>,
-        source: &str,
-    ) -> Self {
-        Self::new(harness, CheckStatus::Fail, title, message, evidence, source)
+    fn fail(rule: &Rule, message: &str, evidence: Vec<String>) -> Self {
+        Self::new(
+            rule,
+            CheckStatus::Fail,
+            message,
+            evidence,
+            Some(rule.remediation.to_string()),
+        )
     }
 
     fn new(
-        harness: HarnessName,
+        rule: &Rule,
         status: CheckStatus,
-        title: &str,
         message: &str,
         evidence: Vec<String>,
-        source: &str,
+        remediation: Option<String>,
     ) -> Self {
         Self {
-            harness,
+            harness: rule.harness,
+            id: rule.id.to_string(),
+            severity: rule.severity,
             status,
-            title: title.to_string(),
+            title: rule.title.to_string(),
             message: message.to_string(),
             evidence,
-            source: source.to_string(),
+            source: rule.source.to_string(),
+            remediation,
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::collections::BTreeSet;
     use std::fs;
 
     use tempfile::tempdir;
 
     use super::*;
+
+    const ALL_RULES: [&Rule; 21] = [
+        &RULE_SHARED_AGENTS_MD,
+        &RULE_SHARED_AGENT_RULES,
+        &RULE_SHARED_SKILLS,
+        &RULE_SHARED_PREFLIGHT,
+        &RULE_SHARED_SYNC_MAIN,
+        &RULE_SHARED_CI_CONTROL,
+        &RULE_CODEX_CONFIG_TOML,
+        &RULE_CODEX_CONFIG_AGENTS,
+        &RULE_CODEX_SKILLS,
+        &RULE_CLAUDE_ADAPTER,
+        &RULE_CLAUDE_IMPORTS_AGENTS,
+        &RULE_CLAUDE_SETTINGS_JSON,
+        &RULE_CLAUDE_RULES_README,
+        &RULE_CLAUDE_LOCAL_SETTINGS,
+        &RULE_GEMINI_ADAPTER,
+        &RULE_GEMINI_IMPORTS_AGENTS,
+        &RULE_GEMINI_SETTINGS_JSON,
+        &RULE_GEMINI_CONTEXT_AGENTS,
+        &RULE_GEMINI_AGENTS,
+        &RULE_GEMINI_COMMANDS,
+        &RULE_GEMINI_COMMAND_TOML,
+    ];
 
     #[test]
     fn reports_ready_multi_harness_project() {
@@ -637,7 +777,7 @@ mod tests {
             report
                 .checks
                 .iter()
-                .any(|check| check.title == "Gemini AGENTS.md context")
+                .any(|check| check.id == "gemini.settings.context_agents")
         );
     }
 
@@ -649,13 +789,9 @@ mod tests {
         let report = analyze_harness_readiness(repo.path(), HarnessFilter::All).expect("report");
 
         assert!(report.summary.failed > 0);
-        assert!(
-            report
-                .checks
-                .iter()
-                .any(|check| check.status == CheckStatus::Fail
-                    && check.title == "Canonical AGENTS.md")
-        );
+        assert!(report.checks.iter().any(
+            |check| check.status == CheckStatus::Fail && check.id == "shared.agents_md.exists"
+        ));
     }
 
     #[test]
@@ -669,24 +805,77 @@ mod tests {
 
         let report = analyze_harness_readiness(repo.path(), HarnessFilter::All).expect("report");
 
-        let failed_titles: Vec<&str> = report
+        let failed_ids: Vec<&str> = report
             .checks
             .iter()
             .filter(|check| check.status == CheckStatus::Fail)
-            .map(|check| check.title.as_str())
+            .map(|check| check.id.as_str())
             .collect();
 
-        assert!(failed_titles.contains(&"Codex config"));
-        assert!(failed_titles.contains(&"Claude settings"));
-        assert!(failed_titles.contains(&"Claude local settings are untracked"));
+        assert!(failed_ids.contains(&"codex.config.valid_toml"));
+        assert!(failed_ids.contains(&"claude.settings.valid_json"));
+        assert!(failed_ids.contains(&"claude.settings.local_untracked"));
         assert!(
             report
                 .checks
                 .iter()
                 .any(|check| check.status == CheckStatus::Warn
-                    && check.title == "Claude imports AGENTS.md")
+                    && check.id == "claude.adapter.imports_agents_md")
         );
         assert!(report.score < 90);
+    }
+
+    #[test]
+    fn rule_ids_are_stable_and_unique() {
+        let mut seen = BTreeSet::new();
+
+        for rule in ALL_RULES {
+            assert!(
+                rule.id.split('.').count() >= 2,
+                "rule id must be namespaced: {}",
+                rule.id
+            );
+            assert!(
+                rule.id
+                    .chars()
+                    .all(|c| c.is_ascii_lowercase() || c == '.' || c == '_'),
+                "rule id must be lowercase dotted: {}",
+                rule.id
+            );
+            assert!(
+                !rule.remediation.is_empty(),
+                "{} needs remediation",
+                rule.id
+            );
+            assert!(!rule.source.is_empty(), "{} needs a source", rule.id);
+            assert!(seen.insert(rule.id), "duplicate rule id: {}", rule.id);
+        }
+    }
+
+    #[test]
+    fn warn_and_fail_checks_carry_remediation() {
+        let repo = tempdir().expect("tempdir");
+        fs::write(repo.path().join("README.md"), "# Demo\n").unwrap();
+
+        let report = analyze_harness_readiness(repo.path(), HarnessFilter::All).expect("report");
+
+        for check in &report.checks {
+            match check.status {
+                CheckStatus::Pass => assert!(
+                    check.remediation.is_none(),
+                    "{} should not carry remediation when passing",
+                    check.id
+                ),
+                CheckStatus::Warn | CheckStatus::Fail => assert!(
+                    check
+                        .remediation
+                        .as_deref()
+                        .is_some_and(|text| !text.is_empty()),
+                    "{} must carry remediation",
+                    check.id
+                ),
+            }
+        }
     }
 
     fn write_ready_project(root: &std::path::Path) {

@@ -68,6 +68,8 @@ The first version detects:
 - Claude `CLAUDE.md`, `.claude/settings.json`, and `.claude/rules/`
 - Gemini `GEMINI.md`, `.gemini/settings.json`, `.gemini/agents/`, and `.gemini/commands/`
 
+Every check is backed by a stable rule ID (for example `shared.agents_md.exists` or `gemini.settings.context_agents`) with a severity (`info`, `low`, `medium`, `high`), evidence paths, an official-doc source, and remediation guidance for warnings and failures. These fields appear in both the Markdown and JSON reports, so the JSON output can be consumed as a stable contract.
+
 The readiness report validates project files and configuration only. RepoLens does not run, call, or embed any AI model.
 
 ## Development
