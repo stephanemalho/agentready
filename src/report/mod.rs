@@ -10,6 +10,15 @@ pub fn render_markdown(analysis: &RepoAnalysis) -> String {
     output.push_str(&format!("- Root: `{}`\n", analysis.root));
     output.push_str(&format!("- Files scanned: `{}`\n", analysis.file_count));
 
+    output.push_str("\n## Top-Level Directories\n\n");
+    if analysis.top_level_directories.is_empty() {
+        output.push_str("- No top-level directories detected.\n");
+    } else {
+        for directory in &analysis.top_level_directories {
+            output.push_str(&format!("- `{directory}/`\n"));
+        }
+    }
+
     output.push_str("\n## Detected Stack\n\n");
     if analysis.detected_stacks.is_empty() {
         output.push_str("- No known stack markers detected.\n");
@@ -162,6 +171,8 @@ mod tests {
         let markdown = render_markdown(&analysis);
 
         assert!(markdown.contains("# RepoLens Report"));
+        assert!(markdown.contains("## Top-Level Directories"));
+        assert!(markdown.contains("- `src/`"));
         assert!(markdown.contains("**Rust**"));
         assert!(markdown.contains("- [x] README"));
         assert!(markdown.contains("- [ ] CI workflow"));

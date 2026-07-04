@@ -23,7 +23,7 @@ The CLI remains the open-source core. Future SaaS work should reuse the same ana
 
 ## Phase 1: CLI Harness Readiness Core
 
-Status: in progress.
+Status: done.
 
 Goal: make the local CLI a reliable harness-readiness checker for repositories.
 

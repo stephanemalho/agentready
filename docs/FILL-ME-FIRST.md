@@ -10,7 +10,7 @@ Before using this template on a real project, fill these items.
 - [ ] `docs/agent-rules/business-rules.template.md`
 - [ ] `docs/agent-rules/testing.template.md`
 - [ ] `.github/CODEOWNERS`
-- [ ] `.github/workflows/project-ci.example.yml`
+- [ ] `.github/workflows/rust-ci.yml` (replace with your project CI)
 
 ## Recommended
 
@@ -24,4 +24,3 @@ Before using this template on a real project, fill these items.
 Project-wide rules go in `docs/agent-rules/`, not in harness adapters.
 
 Harness adapters should explain how each tool loads or applies the neutral rules.
-

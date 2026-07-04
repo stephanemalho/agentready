@@ -658,6 +658,37 @@ mod tests {
         );
     }
 
+    #[test]
+    fn flags_invalid_and_committed_configuration() {
+        let repo = tempdir().expect("tempdir");
+        write_ready_project(repo.path());
+        fs::write(repo.path().join(".codex/config.toml"), "invalid = [\n").unwrap();
+        fs::write(repo.path().join(".claude/settings.json"), "{ invalid\n").unwrap();
+        fs::write(repo.path().join(".claude/settings.local.json"), "{}\n").unwrap();
+        fs::write(repo.path().join("CLAUDE.md"), "# Claude\n").unwrap();
+
+        let report = analyze_harness_readiness(repo.path(), HarnessFilter::All).expect("report");
+
+        let failed_titles: Vec<&str> = report
+            .checks
+            .iter()
+            .filter(|check| check.status == CheckStatus::Fail)
+            .map(|check| check.title.as_str())
+            .collect();
+
+        assert!(failed_titles.contains(&"Codex config"));
+        assert!(failed_titles.contains(&"Claude settings"));
+        assert!(failed_titles.contains(&"Claude local settings are untracked"));
+        assert!(
+            report
+                .checks
+                .iter()
+                .any(|check| check.status == CheckStatus::Warn
+                    && check.title == "Claude imports AGENTS.md")
+        );
+        assert!(report.score < 90);
+    }
+
     fn write_ready_project(root: &std::path::Path) {
         fs::write(root.join("AGENTS.md"), "# Agents\n").unwrap();
         fs::write(root.join("CLAUDE.md"), "@AGENTS.md\n").unwrap();
