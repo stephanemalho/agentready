@@ -15,9 +15,9 @@ if [[ "${BRANCH}" == "${MAIN_BRANCH}" ]]; then
   exit 1
 fi
 
-if [[ ! "${BRANCH}" =~ ^agent/[a-z0-9._-]+/[a-z0-9._-]+/[a-z0-9._-]+$ && ! "${BRANCH}" =~ ^agent/(codex|claude|gemini)/template$ ]]; then
-  echo "error: branch '${BRANCH}' does not match agent/<harness>/<ticket-or-task>/<short-slug>" >&2
-  echo "       seed template branches may use agent/<harness>/template" >&2
+if [[ ! "${BRANCH}" =~ ^agent/(codex|claude|gemini)/bootstrap/repolens-cli$ ]]; then
+  echo "error: branch '${BRANCH}' is not an assigned agent branch" >&2
+  echo "       agents must never create branches; switch to agent/<harness>/bootstrap/repolens-cli" >&2
   exit 1
 fi
 

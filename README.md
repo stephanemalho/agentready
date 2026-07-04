@@ -85,10 +85,12 @@ cargo build --release
 
 This repository uses a multi-harness agent template. `AGENTS.md` is the canonical source of truth, and harness-specific files for Codex, Claude Code, and Gemini CLI should reference the shared project rules instead of duplicating them.
 
-Agents work on branches matching:
+Agents never create branches. Each harness works only on its assigned branch:
 
 ```txt
-agent/<harness>/<ticket-or-task>/<short-slug>
+agent/codex/bootstrap/repolens-cli
+agent/claude/bootstrap/repolens-cli
+agent/gemini/bootstrap/repolens-cli
 ```
 
 The human maintainer reviews and merges to `main`.

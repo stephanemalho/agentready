@@ -13,29 +13,22 @@ Allow multiple harnesses to work on the same project without conflicting worktre
 
 ## Branches
 
-Use:
+Agents must never create branches. Each harness works only on its assigned branch:
 
 ```txt
-agent/<harness>/<ticket-or-task>/<short-slug>
+agent/codex/bootstrap/repolens-cli
+agent/claude/bootstrap/repolens-cli
+agent/gemini/bootstrap/repolens-cli
 ```
 
-Do not use long-running generic branches such as only `codex`, `claude`, or `gemini` for real tasks. They drift too easily.
-
-Seed branches may exist only as examples:
-
-```txt
-agent/codex/template
-agent/claude/template
-agent/gemini/template
-```
+Keeping one long-running branch per harness is the accepted trade-off here; the sync contract below keeps it aligned with `origin/main`.
 
 ## Worktrees
 
-Each harness gets a separate worktree.
+Each harness gets a separate worktree, checked out on its assigned branch.
 
 ```bash
-git fetch origin main
-git worktree add ../project-codex-task -b agent/codex/task/short-slug origin/main
+scripts/create-agent-worktree.sh codex ../repolens-codex
 ```
 
 ## Sync Contract
