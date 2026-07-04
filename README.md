@@ -1,8 +1,10 @@
 # RepoLens
 
-A Rust-powered repository analysis CLI for generating developer onboarding, project health, and AI-agent context reports.
+A Rust CLI for offline repository analysis and coding-agent harness readiness checks.
 
-RepoLens is local-first by design. V1 scans files on disk, respects `.gitignore`, and does not call external AI services.
+RepoLens checks whether a local project is understandable for developers and ready to be worked on by coding-agent harnesses such as Codex, Claude Code, and Gemini CLI.
+
+RepoLens is local-first by design. It scans files on disk, respects `.gitignore`, and does not call external AI services.
 
 ## Quick Start
 
@@ -10,6 +12,7 @@ RepoLens is local-first by design. V1 scans files on disk, respects `.gitignore`
 cargo run -- scan .
 cargo run -- scan . --format json
 cargo run -- doctor .
+cargo run -- harness .
 ```
 
 ## Commands
@@ -26,6 +29,17 @@ repolens scan /path/to/repo --output repolens-report.md
 
 # Compact health summary
 repolens doctor /path/to/repo
+
+# Multi-harness readiness report
+repolens harness /path/to/repo
+
+# Harness-specific readiness checks
+repolens harness /path/to/repo --harness codex
+repolens harness /path/to/repo --harness claude
+repolens harness /path/to/repo --harness gemini
+
+# JSON readiness report
+repolens harness /path/to/repo --format json
 ```
 
 ## Current Signals
@@ -38,8 +52,23 @@ The first version detects:
 - Go projects through `go.mod`
 - Docker usage through `Dockerfile`
 - GitHub Actions through `.github/workflows/`
-- multi-harness AI agent setup through `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`
+- multi-harness coding-agent setup through `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`
 - basic health checks for README, `.gitignore`, CI, license, and tests
+
+## Harness Readiness
+
+`repolens harness` checks whether a repository has the files and conventions needed for serious multi-agent work:
+
+- canonical `AGENTS.md`
+- shared rules under `docs/agent-rules/`
+- shared workflows under `docs/skills/`
+- preflight and main-sync scripts
+- CI branch policy workflow
+- Codex `.codex/config.toml` and `.agents/skills/*/SKILL.md`
+- Claude `CLAUDE.md`, `.claude/settings.json`, and `.claude/rules/`
+- Gemini `GEMINI.md`, `.gemini/settings.json`, `.gemini/agents/`, and `.gemini/commands/`
+
+The readiness report validates project files and configuration only. RepoLens does not run, call, or embed any AI model.
 
 ## Development
 

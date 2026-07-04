@@ -1,6 +1,7 @@
 use anyhow::Context;
 
 use crate::analyzer::{HealthChecks, RepoAnalysis};
+use crate::harness::{CheckStatus, HarnessName, HarnessReadinessReport};
 
 pub fn render_markdown(analysis: &RepoAnalysis) -> String {
     let mut output = String::new();
@@ -29,7 +30,7 @@ pub fn render_markdown(analysis: &RepoAnalysis) -> String {
     output.push_str(&format_health("License", analysis.health.license));
     output.push_str(&format_health("Tests", analysis.health.tests));
 
-    output.push_str("\n## Agent Context\n\n");
+    output.push_str("\n## Orientation Notes\n\n");
     output.push_str(
         "Use this report as a compact orientation snapshot before editing the repository. \
 It is generated from local files only and does not call external AI services.\n",
@@ -57,6 +58,61 @@ pub fn render_doctor(analysis: &RepoAnalysis) -> String {
     output
 }
 
+pub fn render_harness_markdown(report: &HarnessReadinessReport) -> String {
+    let mut output = String::new();
+
+    output.push_str("# RepoLens Harness Readiness\n\n");
+    output.push_str(&format!("- Root: `{}`\n", report.root));
+    output.push_str(&format!("- Score: `{}/100`\n", report.score));
+    output.push_str(&format!(
+        "- Checks: `{}` passed, `{}` warnings, `{}` failed\n",
+        report.summary.passed, report.summary.warnings, report.summary.failed
+    ));
+
+    for harness in [
+        HarnessName::Shared,
+        HarnessName::Codex,
+        HarnessName::Claude,
+        HarnessName::Gemini,
+    ] {
+        let checks: Vec<_> = report
+            .checks
+            .iter()
+            .filter(|check| check.harness == harness)
+            .collect();
+
+        if checks.is_empty() {
+            continue;
+        }
+
+        output.push_str(&format!("\n## {}\n\n", harness.label()));
+        for check in checks {
+            output.push_str(&format!(
+                "- {} **{}**: {}\n",
+                status_marker(check.status),
+                check.title,
+                check.message
+            ));
+
+            if !check.evidence.is_empty() {
+                output.push_str(&format!("  Evidence: `{}`\n", check.evidence.join("`, `")));
+            }
+        }
+    }
+
+    output.push_str("\n## Notes\n\n");
+    output.push_str(
+        "Harness readiness checks validate project files and configuration only. \
+RepoLens does not run, call, or embed any AI model.\n",
+    );
+
+    output
+}
+
+pub fn render_harness_json(report: &HarnessReadinessReport) -> anyhow::Result<String> {
+    serde_json::to_string_pretty(report).context("failed to serialize harness report as JSON")
+}
+
 fn format_health(label: &str, passed: bool) -> String {
     let marker = if passed { "x" } else { " " };
     format!("- [{marker}] {label}\n")
@@ -65,6 +121,14 @@ fn format_health(label: &str, passed: bool) -> String {
 fn format_doctor_line(label: &str, passed: bool) -> String {
     let status = if passed { "ok" } else { "warn" };
     format!("[{status}] {label}\n")
+}
+
+fn status_marker(status: CheckStatus) -> &'static str {
+    match status {
+        CheckStatus::Pass => "[x]",
+        CheckStatus::Warn => "[!]",
+        CheckStatus::Fail => "[ ]",
+    }
 }
 
 #[allow(dead_code)]
@@ -101,5 +165,43 @@ mod tests {
         assert!(markdown.contains("**Rust**"));
         assert!(markdown.contains("- [x] README"));
         assert!(markdown.contains("- [ ] CI workflow"));
+    }
+
+    #[test]
+    fn renders_harness_readiness() {
+        let report = HarnessReadinessReport {
+            root: "/tmp/demo".to_string(),
+            score: 75,
+            summary: crate::harness::HarnessSummary {
+                passed: 1,
+                warnings: 1,
+                failed: 0,
+            },
+            checks: vec![
+                crate::harness::HarnessCheck {
+                    harness: HarnessName::Shared,
+                    status: CheckStatus::Pass,
+                    title: "Canonical AGENTS.md".to_string(),
+                    message: "AGENTS.md found.".to_string(),
+                    evidence: vec!["AGENTS.md".to_string()],
+                    source: "docs".to_string(),
+                },
+                crate::harness::HarnessCheck {
+                    harness: HarnessName::Codex,
+                    status: CheckStatus::Warn,
+                    title: "Codex skills".to_string(),
+                    message: "No skills found.".to_string(),
+                    evidence: vec![".agents/skills/".to_string()],
+                    source: "docs".to_string(),
+                },
+            ],
+        };
+
+        let markdown = render_harness_markdown(&report);
+
+        assert!(markdown.contains("# RepoLens Harness Readiness"));
+        assert!(markdown.contains("Score: `75/100`"));
+        assert!(markdown.contains("## Codex"));
+        assert!(markdown.contains("[!] **Codex skills**"));
     }
 }

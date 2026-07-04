@@ -3,7 +3,7 @@
 ## Layers
 
 ```txt
-CLI -> Analyzer -> Detectors -> Report Renderers -> Filesystem
+CLI -> Analyzer -> Detectors / Harness Readiness -> Report Renderers -> Filesystem
 ```
 
 ## Allowed Dependencies
@@ -12,6 +12,7 @@ CLI -> Analyzer -> Detectors -> Report Renderers -> Filesystem
 - `src/cli.rs` may call analyzer and report rendering code, and may perform explicit user-requested output writes.
 - `src/analyzer/` owns repository walking, file inventory, and analysis assembly.
 - `src/detectors/` owns pure stack and marker detection from relative file paths.
+- `src/harness/` owns coding-agent harness readiness checks.
 - `src/report/` owns Markdown, JSON, and doctor output formatting.
 - Detector and report modules must not perform filesystem or network I/O.
 - V1 must not include an AI SDK or network-backed analysis layer.
@@ -23,6 +24,7 @@ CLI -> Analyzer -> Detectors -> Report Renderers -> Filesystem
 | CLI parsing and command dispatch | `src/cli.rs` |
 | Repository analysis | `src/analyzer/` |
 | Stack detection | `src/detectors/` |
+| Harness readiness checks | `src/harness/` |
 | Report rendering | `src/report/` |
 | Binary entrypoint | `src/main.rs` |
 | Integration CLI tests | `tests/` |

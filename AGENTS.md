@@ -16,7 +16,7 @@ Keep this file short, current, and practical. Put detailed project knowledge in 
 
 ## Product Direction
 
-RepoLens is an offline repository analysis CLI. It scans local repositories and generates concise reports for developers and AI coding agents.
+RepoLens is an offline repository analysis CLI. It scans local repositories, reports project health, and checks whether a repo is ready for coding-agent harnesses such as Codex, Claude Code, and Gemini CLI.
 
 V1 must stay deterministic and local-first:
 
@@ -25,6 +25,7 @@ V1 must stay deterministic and local-first:
 - no API keys required
 - no secret values printed in output
 - Markdown and JSON reports generated from local files only
+- harness readiness checks validate files and configuration, not model behavior
 
 ## Source Of Truth
 
@@ -122,6 +123,7 @@ If a command is unavailable, report why. Do not claim validation passed without 
 - Put CLI parsing in `src/cli.rs`.
 - Put repository analysis in `src/analyzer/`.
 - Put stack detection in `src/detectors/`.
+- Put coding-agent harness readiness checks in `src/harness/`.
 - Put output formatting in `src/report/`.
 - Prefer small pure functions and unit tests for detectors/renderers.
 - Use integration tests for command behavior in `tests/`.
