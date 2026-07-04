@@ -1,9 +1,9 @@
-# RepoLens Project Profile
+# AgentReady Project Profile
 
 ## Identity
 
-- Project name: RepoLens
-- Repository: `git@github.com:stephanemalho/repolens.git`
+- Project name: AgentReady
+- Repository: `git@github.com:stephanemalho/agentready.git`
 - Primary maintainer: Stephane Malho
 - Product/domain: developer tooling, repository analysis, coding-agent harness readiness
 - Audience/users: software developers, technical project maintainers, and teams preparing repositories for Codex, Claude Code, Gemini CLI, or similar harnesses

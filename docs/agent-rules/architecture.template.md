@@ -1,4 +1,4 @@
-# RepoLens Architecture Rules
+# AgentReady Architecture Rules
 
 ## Layers
 

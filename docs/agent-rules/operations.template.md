@@ -1,4 +1,4 @@
-# RepoLens Operations Rules
+# AgentReady Operations Rules
 
 ## Environments
 
@@ -24,7 +24,7 @@
 
 ## Local Ports
 
-RepoLens is a CLI and does not bind local ports in V1.
+AgentReady is a CLI and does not bind local ports in V1.
 
 | Service | Default | Agent override |
 |---|---:|---:|

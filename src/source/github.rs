@@ -127,7 +127,7 @@ fn get_raw(url: &str, token: Option<&str>) -> anyhow::Result<Option<String>> {
 
 fn request(url: &str, token: Option<&str>, accept: &str) -> ureq::Request {
     let mut request = ureq::get(url)
-        .set("User-Agent", "repolens")
+        .set("User-Agent", "agentready")
         .set("Accept", accept)
         .set("X-GitHub-Api-Version", "2022-11-28");
 
@@ -172,7 +172,7 @@ mod tests {
 
     #[test]
     fn parses_default_branch_from_metadata() {
-        let metadata = json!({ "name": "repolens", "default_branch": "main" });
+        let metadata = json!({ "name": "agentready", "default_branch": "main" });
 
         assert_eq!(parse_default_branch(&metadata).expect("branch"), "main");
         assert!(parse_default_branch(&json!({})).is_err());

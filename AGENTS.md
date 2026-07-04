@@ -1,4 +1,4 @@
-# RepoLens Agent Rules
+# AgentReady Agent Rules
 
 This file is the canonical entrypoint for all AI coding agents working in this repository.
 
@@ -6,17 +6,17 @@ Keep this file short, current, and practical. Put detailed project knowledge in 
 
 ## Project Identity
 
-- Project name: `repolens`
+- Project name: `agentready`
 - Project type: Rust command-line application
 - Primary stack: Rust 2024, Cargo, clap, ignore, serde
 - Runtime/package manager: Rust toolchain with Cargo
-- Repository: `git@github.com:stephanemalho/repolens.git`
+- Repository: `git@github.com:stephanemalho/agentready.git`
 - Main branch: `main`
 - Human maintainer: Stephane Malho
 
 ## Product Direction
 
-RepoLens is a repository analysis CLI. It scans local repositories or public GitHub repositories, reports project health, and checks whether a repo is ready for coding-agent harnesses such as Codex, Claude Code, and Gemini CLI.
+AgentReady is a repository analysis CLI. It scans local repositories or public GitHub repositories, reports project health, and checks whether a repo is ready for coding-agent harnesses such as Codex, Claude Code, and Gemini CLI.
 
 Product roadmap: `docs/ROADMAP.md`.
 

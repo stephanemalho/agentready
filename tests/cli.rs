@@ -9,13 +9,13 @@ use tempfile::tempdir;
 fn scan_outputs_markdown_report() {
     let repo = fixture_repo();
 
-    let mut command = Command::cargo_bin("repolens").expect("binary");
+    let mut command = Command::cargo_bin("agentready").expect("binary");
     command.arg("scan").arg(repo.path());
 
     command
         .assert()
         .success()
-        .stdout(predicate::str::contains("# RepoLens Report"))
+        .stdout(predicate::str::contains("# AgentReady Report"))
         .stdout(predicate::str::contains("## Top-Level Directories"))
         .stdout(predicate::str::contains("- `docs/`"))
         .stdout(predicate::str::contains("Rust"))
@@ -25,9 +25,9 @@ fn scan_outputs_markdown_report() {
 #[test]
 fn scan_writes_report_to_file() {
     let repo = fixture_repo();
-    let output = repo.path().join("repolens-report.md");
+    let output = repo.path().join("agentready-report.md");
 
-    let mut command = Command::cargo_bin("repolens").expect("binary");
+    let mut command = Command::cargo_bin("agentready").expect("binary");
     command
         .arg("scan")
         .arg(repo.path())
@@ -37,13 +37,13 @@ fn scan_writes_report_to_file() {
     command.assert().success();
 
     let content = fs::read_to_string(&output).expect("report file");
-    assert!(content.contains("# RepoLens Report"));
+    assert!(content.contains("# AgentReady Report"));
 }
 
 #[test]
 fn scan_fails_for_missing_path() {
-    let mut command = Command::cargo_bin("repolens").expect("binary");
-    command.arg("scan").arg("/nonexistent/repolens-test-path");
+    let mut command = Command::cargo_bin("agentready").expect("binary");
+    command.arg("scan").arg("/nonexistent/agentready-test-path");
 
     command
         .assert()
@@ -55,7 +55,7 @@ fn scan_fails_for_missing_path() {
 fn scan_outputs_json_report() {
     let repo = fixture_repo();
 
-    let mut command = Command::cargo_bin("repolens").expect("binary");
+    let mut command = Command::cargo_bin("agentready").expect("binary");
     command
         .arg("scan")
         .arg(repo.path())
@@ -73,13 +73,13 @@ fn scan_outputs_json_report() {
 fn doctor_outputs_health_summary() {
     let repo = fixture_repo();
 
-    let mut command = Command::cargo_bin("repolens").expect("binary");
+    let mut command = Command::cargo_bin("agentready").expect("binary");
     command.arg("doctor").arg(repo.path());
 
     command
         .assert()
         .success()
-        .stdout(predicate::str::contains("RepoLens doctor"))
+        .stdout(predicate::str::contains("AgentReady doctor"))
         .stdout(predicate::str::contains("[ok] README"))
         .stdout(predicate::str::contains("[warn] License"));
 }
@@ -88,13 +88,13 @@ fn doctor_outputs_health_summary() {
 fn harness_outputs_readiness_report() {
     let repo = fixture_repo();
 
-    let mut command = Command::cargo_bin("repolens").expect("binary");
+    let mut command = Command::cargo_bin("agentready").expect("binary");
     command.arg("harness").arg(repo.path());
 
     command
         .assert()
         .success()
-        .stdout(predicate::str::contains("# RepoLens Harness Readiness"))
+        .stdout(predicate::str::contains("# AgentReady Harness Readiness"))
         .stdout(predicate::str::contains("Shared Workflow"))
         .stdout(predicate::str::contains("Codex"))
         .stdout(predicate::str::contains("Gemini AGENTS.md context"));
@@ -104,7 +104,7 @@ fn harness_outputs_readiness_report() {
 fn harness_outputs_json_report() {
     let repo = fixture_repo();
 
-    let mut command = Command::cargo_bin("repolens").expect("binary");
+    let mut command = Command::cargo_bin("agentready").expect("binary");
     command
         .arg("harness")
         .arg(repo.path())
@@ -124,7 +124,7 @@ fn harness_writes_json_report_to_file() {
     let repo = fixture_repo();
     let output = repo.path().join("harness-report.json");
 
-    let mut command = Command::cargo_bin("repolens").expect("binary");
+    let mut command = Command::cargo_bin("agentready").expect("binary");
     command
         .arg("harness")
         .arg(repo.path())
@@ -144,7 +144,7 @@ fn harness_writes_json_report_to_file() {
 fn harness_can_filter_to_codex() {
     let repo = fixture_repo();
 
-    let mut command = Command::cargo_bin("repolens").expect("binary");
+    let mut command = Command::cargo_bin("agentready").expect("binary");
     command
         .arg("harness")
         .arg(repo.path())
@@ -161,7 +161,7 @@ fn harness_can_filter_to_codex() {
 
 #[test]
 fn harness_rejects_malformed_github_target() {
-    let mut command = Command::cargo_bin("repolens").expect("binary");
+    let mut command = Command::cargo_bin("agentready").expect("binary");
     command.arg("harness").arg("github:owner-without-repo");
 
     command
@@ -173,14 +173,16 @@ fn harness_rejects_malformed_github_target() {
 #[test]
 #[ignore = "requires network access; run manually with cargo test -- --ignored"]
 fn harness_scans_github_repository_live() {
-    let mut command = Command::cargo_bin("repolens").expect("binary");
-    command.arg("harness").arg("github:stephanemalho/repolens");
+    let mut command = Command::cargo_bin("agentready").expect("binary");
+    command
+        .arg("harness")
+        .arg("github:stephanemalho/agentready");
 
     command
         .assert()
         .success()
-        .stdout(predicate::str::contains("# RepoLens Harness Readiness"))
-        .stdout(predicate::str::contains("github:stephanemalho/repolens"));
+        .stdout(predicate::str::contains("# AgentReady Harness Readiness"))
+        .stdout(predicate::str::contains("github:stephanemalho/agentready"));
 }
 
 fn fixture_repo() -> tempfile::TempDir {

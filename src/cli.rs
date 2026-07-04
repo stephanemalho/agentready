@@ -12,7 +12,7 @@ use crate::report::{
 use crate::source::{load_snapshot, parse_target};
 
 #[derive(Debug, Parser)]
-#[command(name = "repolens")]
+#[command(name = "agentready")]
 #[command(about = "Scan repositories and check coding-agent harness readiness.")]
 #[command(version)]
 pub struct Cli {
