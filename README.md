@@ -92,6 +92,9 @@ cargo fmt --check
 cargo clippy -- -D warnings
 cargo test
 cargo build --release
+
+# The CI also runs security audits (cargo-audit), code coverage (cargo-tarpaulin),
+# and dogfoods the harness command on the repository itself.
 ```
 
 ## Agent Workflow

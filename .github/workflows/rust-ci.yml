@@ -21,14 +21,40 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
       - name: Check formatting
         run: cargo fmt --check
 
       - name: Lint
         run: cargo clippy -- -D warnings
 
+      - name: Security audit
+        run: |
+          cargo install cargo-audit
+          cargo audit
+
       - name: Test
         run: cargo test
 
+      - name: Code coverage
+        run: |
+          cargo install cargo-tarpaulin
+          cargo tarpaulin --verbose --workspace --all-targets --out Xml
+
       - name: Build release
         run: cargo build --release
+
+      - name: Dogfooding (run analysis on self)
+        run: cargo run --release -- harness .
