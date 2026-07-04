@@ -16,8 +16,39 @@ fn scan_outputs_markdown_report() {
         .assert()
         .success()
         .stdout(predicate::str::contains("# RepoLens Report"))
+        .stdout(predicate::str::contains("## Top-Level Directories"))
+        .stdout(predicate::str::contains("- `docs/`"))
         .stdout(predicate::str::contains("Rust"))
         .stdout(predicate::str::contains("Multi-harness coding agents"));
+}
+
+#[test]
+fn scan_writes_report_to_file() {
+    let repo = fixture_repo();
+    let output = repo.path().join("repolens-report.md");
+
+    let mut command = Command::cargo_bin("repolens").expect("binary");
+    command
+        .arg("scan")
+        .arg(repo.path())
+        .arg("--output")
+        .arg(&output);
+
+    command.assert().success();
+
+    let content = fs::read_to_string(&output).expect("report file");
+    assert!(content.contains("# RepoLens Report"));
+}
+
+#[test]
+fn scan_fails_for_missing_path() {
+    let mut command = Command::cargo_bin("repolens").expect("binary");
+    command.arg("scan").arg("/nonexistent/repolens-test-path");
+
+    command
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("repository path does not exist"));
 }
 
 #[test]
@@ -86,6 +117,27 @@ fn harness_outputs_json_report() {
         .stdout(predicate::str::contains("\"score\""))
         .stdout(predicate::str::contains("\"harness\""))
         .stdout(predicate::str::contains("\"codex\""));
+}
+
+#[test]
+fn harness_writes_json_report_to_file() {
+    let repo = fixture_repo();
+    let output = repo.path().join("harness-report.json");
+
+    let mut command = Command::cargo_bin("repolens").expect("binary");
+    command
+        .arg("harness")
+        .arg(repo.path())
+        .arg("--format")
+        .arg("json")
+        .arg("--output")
+        .arg(&output);
+
+    command.assert().success();
+
+    let content = fs::read_to_string(&output).expect("report file");
+    assert!(content.contains("\"score\""));
+    assert!(content.contains("\"checks\""));
 }
 
 #[test]

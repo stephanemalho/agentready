@@ -29,7 +29,7 @@ for file in "${required_files[@]}"; do
   fi
 done
 
-if [[ -f ".claude/settings.local.json" ]]; then
+if git ls-files --error-unmatch ".claude/settings.local.json" >/dev/null 2>&1; then
   echo "error: .claude/settings.local.json must not be committed" >&2
   exit 1
 fi
