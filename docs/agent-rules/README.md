@@ -4,6 +4,8 @@ This directory is the canonical location for project rules shared by every harne
 
 Harness folders may reference these files, but must not become the only place where a project-wide rule exists.
 
+The product roadmap lives in `docs/ROADMAP.md`. Read it before product, CLI, SaaS, GitHub, report, or milestone work.
+
 ## How to fill this directory
 
 Start with the template files:
@@ -41,3 +43,4 @@ When an agent makes the same mistake twice, add or update a rule here.
 
 When a rule only applies to one harness because of tool behavior, document it in `docs/harness/` and keep project logic here.
 
+When roadmap scope, phase status, or product direction changes, update `docs/ROADMAP.md` in the same PR.

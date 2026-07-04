@@ -20,6 +20,7 @@
 - RepoLens must not print secret values discovered in files.
 - JSON output must remain machine-readable and generated from serializable analysis structs.
 - Harness readiness checks must validate local files and configuration only; they must not claim that a model will follow instructions.
+- Roadmap work must follow `docs/ROADMAP.md` unless the user explicitly changes product direction.
 
 ## Workflows
 
@@ -58,3 +59,4 @@
 
 - Changes requiring human approval: adding network calls, adding an AI SDK, publishing packages, changing branch protection, changing GitHub release policy.
 - Changes agents may make directly: detectors, report formatting, tests, documentation, and internal refactors that preserve CLI behavior.
+- SaaS and GitHub API work must preserve the offline CLI path and keep network access explicit.

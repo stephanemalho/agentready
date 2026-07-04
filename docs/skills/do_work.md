@@ -23,6 +23,7 @@ Then run preflight again.
 Read:
 
 - `AGENTS.md`
+- `docs/ROADMAP.md` when the task affects product scope, CLI commands, report shape, SaaS direction, GitHub integration, or milestone sequencing
 - task-specific files from `docs/agent-rules/`
 - task-specific workflow from `docs/skills/`
 
@@ -62,4 +63,3 @@ Report:
 - skipped checks
 - remaining risks
 - branch sync status
-

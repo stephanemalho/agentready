@@ -3,6 +3,7 @@
 ## Required Reading
 
 - `AGENTS.md`
+- `docs/ROADMAP.md` for product, CLI, report, SaaS, GitHub, and milestone work
 - `docs/skills/do_work.md`
 - `docs/agent-rules/architecture.template.md`
 - `docs/agent-rules/testing.template.md`
