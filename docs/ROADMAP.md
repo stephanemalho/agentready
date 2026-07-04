@@ -73,6 +73,7 @@ Goal: allow RepoLens logic to analyze a GitHub repository without requiring a lo
 
 Required capabilities:
 
+- Must: add an open-source `LICENSE` file before the project gains visibility (MIT or Apache-2.0; dual MIT/Apache-2.0 is the Rust ecosystem standard). It is currently the only `repolens doctor` warning on this repository and blocks open-source adoption.
 - Introduce a repository source abstraction, for example `RepositorySource`.
 - Keep `LocalRepositorySource` for CLI filesystem scans.
 - Add `GitHubRepositorySource` behind a new module or crate boundary.
@@ -92,6 +93,7 @@ Exit criteria:
 - Public GitHub repos can be scanned from a URL.
 - Local and GitHub sources produce the same report shape.
 - Network access is explicit and never used by ordinary local scans.
+- Must: the CLI is published on crates.io once Phase 3 is stable, so `cargo install repolens` works before the SaaS launch. It is the natural free distribution channel and builds product credibility ahead of Phase 4.
 
 ## Phase 4: SaaS MVP For Public Repositories
 
