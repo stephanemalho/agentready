@@ -153,7 +153,16 @@ pub fn analyze_repository(path: impl AsRef<Path>) -> anyhow::Result<RepoAnalysis
                 .files
                 .iter()
                 .any(|file| file.starts_with(".github/workflows/")),
-            license: has_any(&snapshot.files, &["LICENSE", "LICENSE.md", "COPYING"]),
+            license: has_any(
+                &snapshot.files,
+                &[
+                    "LICENSE",
+                    "LICENSE.md",
+                    "COPYING",
+                    "LICENSE-MIT",
+                    "LICENSE-APACHE",
+                ],
+            ),
             tests: snapshot
                 .files
                 .iter()
@@ -199,5 +208,16 @@ mod tests {
                 .iter()
                 .any(|stack| stack.name == "Rust")
         );
+    }
+
+    #[test]
+    fn detects_dual_license_files() {
+        let temp = tempdir().expect("tempdir");
+        fs::write(temp.path().join("LICENSE-MIT"), "MIT License\n").unwrap();
+        fs::write(temp.path().join("LICENSE-APACHE"), "Apache License\n").unwrap();
+
+        let analysis = analyze_repository(temp.path()).expect("analysis");
+
+        assert!(analysis.health.license);
     }
 }
