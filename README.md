@@ -1,10 +1,10 @@
 # RepoLens
 
-A Rust CLI for offline repository analysis and coding-agent harness readiness checks.
+A Rust CLI for repository analysis and coding-agent harness readiness checks.
 
-RepoLens checks whether a local project is understandable for developers and ready to be worked on by coding-agent harnesses such as Codex, Claude Code, and Gemini CLI.
+RepoLens checks whether a project is understandable for developers and ready to be worked on by coding-agent harnesses such as Codex, Claude Code, and Gemini CLI. It scans local repositories or public GitHub repositories.
 
-RepoLens is local-first by design. It scans files on disk, respects `.gitignore`, and does not call external AI services.
+RepoLens is local-first by design. Local scans read files on disk, respect `.gitignore`, and never touch the network. Only explicit `github:owner/repo` or GitHub URL targets call the GitHub API, and no AI service is ever called.
 
 ## Quick Start
 
@@ -40,7 +40,15 @@ repolens harness /path/to/repo --harness gemini
 
 # JSON readiness report
 repolens harness /path/to/repo --format json
+
+# Scan a public GitHub repository without cloning it
+repolens harness github:owner/repo
+repolens harness https://github.com/owner/repo
+repolens scan github:owner/repo --format json
 ```
+
+GitHub targets use the GitHub REST API. Set the optional `GITHUB_TOKEN`
+environment variable to raise the API rate limit; its value is never printed.
 
 ## Current Signals
 

@@ -3,3 +3,4 @@ pub mod cli;
 pub mod detectors;
 pub mod harness;
 pub mod report;
+pub mod source;
