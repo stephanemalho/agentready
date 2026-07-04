@@ -50,6 +50,11 @@ agentready scan github:owner/repo --format json
 GitHub targets use the GitHub REST API. Set the optional `GITHUB_TOKEN`
 environment variable to raise the API rate limit; its value is never printed.
 
+JSON reports include source metadata so downstream tools can store where a scan
+came from. Local scans report `"provider": "local"`. GitHub scans report
+`"provider": "github"` plus owner, repository, default branch, and commit SHA
+when GitHub provides it.
+
 ## Current Signals
 
 The first version detects:

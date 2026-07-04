@@ -5,7 +5,7 @@ use std::path::Path;
 use anyhow::{Context, bail};
 use ignore::WalkBuilder;
 
-use crate::analyzer::RepositorySnapshot;
+use crate::analyzer::{RepositorySnapshot, RepositorySourceMetadata};
 use crate::harness::content_paths;
 
 pub fn snapshot(path: &Path) -> anyhow::Result<RepositorySnapshot> {
@@ -78,6 +78,7 @@ pub fn snapshot(path: &Path) -> anyhow::Result<RepositorySnapshot> {
 
     Ok(RepositorySnapshot {
         root: root.display().to_string(),
+        source: RepositorySourceMetadata::local(),
         files,
         top_level_directories: top_level_directories.into_iter().collect(),
         contents,
@@ -104,6 +105,7 @@ mod tests {
 
         assert!(snapshot.has_file("AGENTS.md"));
         assert!(snapshot.has_file("src/main.rs"));
+        assert_eq!(snapshot.source, RepositorySourceMetadata::local());
         assert_eq!(snapshot.top_level_directories, vec!["src".to_string()]);
         assert_eq!(
             snapshot.read_file("AGENTS.md").expect("content"),

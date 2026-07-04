@@ -110,6 +110,10 @@ Required capabilities:
 - Scans are stored with timestamp and source commit SHA when available.
 - Users can rescan manually.
 
+Core readiness already available: CLI JSON reports expose structured source
+metadata (`provider`, GitHub owner/repo, default branch, and commit SHA when
+available) for future scan storage.
+
 Suggested data entities:
 
 - `Repository`: owner, name, provider, default branch, visibility.
