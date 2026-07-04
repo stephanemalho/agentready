@@ -10,7 +10,7 @@
 ### Branch
 
 - Branch name:
-- Expected pattern: `agent/<harness>/<ticket-or-task>/<short-slug>`
+- Expected branch: the harness's assigned branch `agent/<harness>/bootstrap/repolens-cli`
 
 ### Main sync
 

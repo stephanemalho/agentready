@@ -15,8 +15,8 @@ if [[ "${HEAD_REF}" == "${MAIN_BRANCH}" ]]; then
   exit 1
 fi
 
-if [[ ! "${HEAD_REF}" =~ ^agent/[a-z0-9._-]+/[a-z0-9._-]+/[a-z0-9._-]+$ && ! "${HEAD_REF}" =~ ^agent/(codex|claude|gemini)/template$ && ! "${HEAD_REF}" =~ ^dependabot/.+ ]]; then
-  echo "error: PR branch '${HEAD_REF}' must match agent/<harness>/<ticket-or-task>/<short-slug> or dependabot/*" >&2
+if [[ ! "${HEAD_REF}" =~ ^agent/(codex|claude|gemini)/bootstrap/repolens-cli$ && ! "${HEAD_REF}" =~ ^dependabot/.+ ]]; then
+  echo "error: PR branch '${HEAD_REF}' must be an assigned agent branch (agent/<harness>/bootstrap/repolens-cli) or dependabot/*" >&2
   exit 1
 fi
 

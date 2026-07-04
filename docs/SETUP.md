@@ -31,10 +31,12 @@ Fill placeholders before asking agents to implement production work.
 
 ## Creating Agent Worktrees
 
+Each worktree checks out the harness's assigned branch. Agents never create branches.
+
 ```bash
-scripts/create-agent-worktree.sh codex 42 add-auth-tests ../project-codex-42
-scripts/create-agent-worktree.sh claude docs update-agent-rules ../project-claude-docs
-scripts/create-agent-worktree.sh gemini ui polish-dashboard ../project-gemini-ui
+scripts/create-agent-worktree.sh codex ../repolens-codex
+scripts/create-agent-worktree.sh claude ../repolens-claude
+scripts/create-agent-worktree.sh gemini ../repolens-gemini
 ```
 
 Each worktree should have its own local env:

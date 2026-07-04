@@ -1,33 +1,40 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -lt 3 ]]; then
-  echo "usage: scripts/create-agent-worktree.sh <harness> <ticket-or-task> <short-slug> [path]" >&2
-  echo "example: scripts/create-agent-worktree.sh codex 42 add-auth-tests ../project-codex-42" >&2
+if [[ $# -lt 1 ]]; then
+  echo "usage: scripts/create-agent-worktree.sh <harness> [path]" >&2
+  echo "example: scripts/create-agent-worktree.sh codex ../repolens-codex" >&2
+  echo "note: checks out the harness's assigned branch; agents never create branches" >&2
   exit 1
 fi
 
 HARNESS="$1"
-TASK="$2"
-SLUG="$3"
-TARGET_PATH="${4:-../$(basename "$(pwd)")-${HARNESS}-${TASK}-${SLUG}}"
+TARGET_PATH="${2:-../$(basename "$(pwd)")-${HARNESS}}"
 MAIN_BRANCH="${MAIN_BRANCH:-main}"
 REMOTE="${REMOTE:-origin}"
 
-if [[ ! "${HARNESS}" =~ ^[a-z0-9._-]+$ || ! "${TASK}" =~ ^[a-z0-9._-]+$ || ! "${SLUG}" =~ ^[a-z0-9._-]+$ ]]; then
-  echo "error: harness, task, and slug must be lowercase ids using letters, numbers, dot, underscore, or dash" >&2
+if [[ ! "${HARNESS}" =~ ^(codex|claude|gemini)$ ]]; then
+  echo "error: harness must be codex, claude, or gemini" >&2
   exit 1
 fi
 
-BRANCH="agent/${HARNESS}/${TASK}/${SLUG}"
+BRANCH="agent/${HARNESS}/bootstrap/repolens-cli"
 
 git fetch "${REMOTE}" "${MAIN_BRANCH}"
-git worktree add "${TARGET_PATH}" -b "${BRANCH}" "${REMOTE}/${MAIN_BRANCH}"
 
-echo "created worktree: ${TARGET_PATH}"
-echo "created branch: ${BRANCH}"
+if git show-ref --verify --quiet "refs/heads/${BRANCH}"; then
+  git worktree add "${TARGET_PATH}" "${BRANCH}"
+elif git show-ref --verify --quiet "refs/remotes/${REMOTE}/${BRANCH}"; then
+  git worktree add "${TARGET_PATH}" --track -b "${BRANCH}" "${REMOTE}/${BRANCH}"
+else
+  echo "error: assigned branch '${BRANCH}' does not exist locally or on ${REMOTE}" >&2
+  echo "       the human maintainer must create assigned branches" >&2
+  exit 1
+fi
+
+echo "worktree ready: ${TARGET_PATH}"
+echo "branch: ${BRANCH}"
 echo "next:"
 echo "  cd ${TARGET_PATH}"
 echo "  cp .env.example .env.local"
 echo "  scripts/agent-preflight.sh"
-

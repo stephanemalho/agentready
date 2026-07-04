@@ -70,8 +70,11 @@ Run deterministic checks and report exact command results.
 
 - Never run two coding agents in the same worktree.
 - Each model/harness must work in its own git worktree and branch.
-- Branch format: `agent/<harness>/<ticket-or-task>/<short-slug>`.
-- Harness names: `codex`, `claude`, `gemini`, or another lowercase tool id.
+- Agents must never create branches. Each harness works only on its assigned branch:
+  - Codex: `agent/codex/bootstrap/repolens-cli`
+  - Claude Code: `agent/claude/bootstrap/repolens-cli`
+  - Gemini CLI: `agent/gemini/bootstrap/repolens-cli`
+- If you are not on your assigned branch, switch to it with `git switch`; never create a replacement branch.
 - Each worktree must use separate local-only files when applicable: `.env.local`, database name, log folder, temp folder, cache folder, and ports.
 - Agents may propose changes, but final merge requires human review.
 - Agents must not merge or push directly to `main`.
@@ -167,7 +170,7 @@ Before editing harness configuration, check the official docs:
 
 Before reporting completion:
 
-1. Confirm the branch matches `agent/<harness>/<ticket-or-task>/<short-slug>`.
+1. Confirm you are on your harness's assigned branch: `agent/<harness>/bootstrap/repolens-cli`.
 2. Confirm the branch is up to date with `origin/main`.
 3. Run applicable validation commands.
 4. Summarize changed files.

@@ -4,18 +4,15 @@
 
 `main` is the protected integration branch.
 
-Agent branches must follow:
+Agents must never create branches. Each harness works only on its assigned branch:
 
 ```txt
-agent/<harness>/<ticket-or-task>/<short-slug>
+agent/codex/bootstrap/repolens-cli
+agent/claude/bootstrap/repolens-cli
+agent/gemini/bootstrap/repolens-cli
 ```
 
-Allowed harness names:
-
-- `codex`
-- `claude`
-- `gemini`
-- project-defined lowercase ids
+If an agent is not on its assigned branch, it must switch to it with `git switch`, never create a new one.
 
 ## Main Synchronization
 
