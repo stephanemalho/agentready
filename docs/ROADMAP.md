@@ -67,7 +67,7 @@ Exit criteria:
 
 ## Phase 3: GitHub Repository Source
 
-Status: in progress. Implementation and tests are done; the remaining exit criterion is the crates.io publication.
+Status: done. Published as `agentready` 0.1.0 on crates.io on 2026-07-04.
 
 Goal: allow AgentReady logic to analyze a GitHub repository without requiring a local checkout.
 
