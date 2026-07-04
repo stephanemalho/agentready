@@ -46,7 +46,7 @@ Exit criteria:
 
 ## Phase 2: Rule Catalog And Findings Model
 
-Status: planned.
+Status: done.
 
 Goal: turn readiness checks into a reusable rule catalog with stable finding IDs.
 
