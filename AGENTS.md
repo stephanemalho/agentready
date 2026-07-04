@@ -1,17 +1,30 @@
-# AGENTS.md
+# RepoLens Agent Rules
 
 This file is the canonical entrypoint for all AI coding agents working in this repository.
 
-Keep it short, current, and practical. Put detailed project knowledge in `docs/agent-rules/`, `docs/skills/`, and `docs/templates/`.
+Keep this file short, current, and practical. Put detailed project knowledge in `docs/agent-rules/`, `docs/skills/`, and `docs/templates/`.
 
 ## Project Identity
 
-- Project name: `PROJECT_NAME_REPLACE_ME`
-- Project type: `PROJECT_TYPE_REPLACE_ME`
-- Primary stack: `STACK_REPLACE_ME`
-- Runtime/package manager: `RUNTIME_REPLACE_ME`
+- Project name: `repolens`
+- Project type: Rust command-line application
+- Primary stack: Rust 2024, Cargo, clap, ignore, serde
+- Runtime/package manager: Rust toolchain with Cargo
+- Repository: `git@github.com:stephanemalho/repolens.git`
 - Main branch: `main`
-- Human maintainer: `OWNER_REPLACE_ME`
+- Human maintainer: Stephane Malho
+
+## Product Direction
+
+RepoLens is an offline repository analysis CLI. It scans local repositories and generates concise reports for developers and AI coding agents.
+
+V1 must stay deterministic and local-first:
+
+- no external AI SDK
+- no network calls during scans
+- no API keys required
+- no secret values printed in output
+- Markdown and JSON reports generated from local files only
 
 ## Source Of Truth
 
@@ -89,20 +102,31 @@ The agent must repeat the preflight before opening a pull request or reporting c
 
 ## Validation Commands
 
-Fill these commands for each project.
-
 ```bash
 # Required generic checks
 scripts/validate-agent-template.sh
 scripts/agent-preflight.sh
 
 # Project-specific checks
-PROJECT_LINT_COMMAND_REPLACE_ME
-PROJECT_TEST_COMMAND_REPLACE_ME
-PROJECT_BUILD_COMMAND_REPLACE_ME
+cargo fmt --check
+cargo clippy -- -D warnings
+cargo test
+cargo build --release
 ```
 
 If a command is unavailable, report why. Do not claim validation passed without exact command output.
+
+## Rust Implementation Rules
+
+- Keep `src/main.rs` as a thin entrypoint.
+- Put CLI parsing in `src/cli.rs`.
+- Put repository analysis in `src/analyzer/`.
+- Put stack detection in `src/detectors/`.
+- Put output formatting in `src/report/`.
+- Prefer small pure functions and unit tests for detectors/renderers.
+- Use integration tests for command behavior in `tests/`.
+- Do not add a dependency when the standard library is enough.
+- Explain every new runtime dependency in the PR summary.
 
 ## Harness Adapters
 
@@ -140,4 +164,3 @@ Before reporting completion:
 4. Summarize changed files.
 5. Report assumptions and any skipped validation.
 6. Do not merge to `main`.
-

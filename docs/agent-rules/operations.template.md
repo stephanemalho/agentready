@@ -1,35 +1,31 @@
-# Operations Rules Template
-
-Use this file for runtime, deployment, observability, and support rules.
+# RepoLens Operations Rules
 
 ## Environments
 
 | Environment | Purpose | Owner |
 |---|---|---|
 | local | development | developer |
-| staging | pre-production | `OWNER_REPLACE_ME` |
-| production | live users | `OWNER_REPLACE_ME` |
+| CI | pull request validation | GitHub Actions |
+| release | future binary/crate publishing | Stephane Malho |
 
 ## Deployment
 
-- Deployment platform:
-- Build command:
-- Release process:
-- Rollback process:
+- Deployment platform: none in V1.
+- Build command: `cargo build --release`.
+- Release process: manual until a release workflow is explicitly designed.
+- Rollback process: publish a corrective release or revert the relevant Git tag once release automation exists.
 
 ## Observability
 
-- Logs:
-- Metrics:
-- Tracing:
-- Error reporting:
+- Logs: plain stderr/stdout only.
+- Metrics: none in V1.
+- Tracing: none in V1.
+- Error reporting: command exits non-zero with a clear error message.
 
 ## Local Ports
 
-Each agent worktree must use separate ports when running services in parallel.
+RepoLens is a CLI and does not bind local ports in V1.
 
 | Service | Default | Agent override |
 |---|---:|---:|
-| app | `3000` | `3xxx` |
-| api | `8000` | `8xxx` |
-
+| not applicable | `n/a` | `n/a` |
