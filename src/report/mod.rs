@@ -6,7 +6,7 @@ use crate::harness::{CheckStatus, HarnessName, HarnessReadinessReport};
 pub fn render_markdown(analysis: &RepoAnalysis) -> String {
     let mut output = String::new();
 
-    output.push_str("# RepoLens Report\n\n");
+    output.push_str("# AgentReady Report\n\n");
     output.push_str(&format!("- Root: `{}`\n", analysis.root));
     output.push_str(&format!("- Files scanned: `{}`\n", analysis.file_count));
 
@@ -55,7 +55,7 @@ pub fn render_json(analysis: &RepoAnalysis) -> anyhow::Result<String> {
 pub fn render_doctor(analysis: &RepoAnalysis) -> String {
     let mut output = String::new();
 
-    output.push_str("RepoLens doctor\n");
+    output.push_str("AgentReady doctor\n");
     output.push_str(&format!("root: {}\n", analysis.root));
     output.push_str(&format!("files: {}\n\n", analysis.file_count));
     output.push_str(&format_doctor_line("README", analysis.health.readme));
@@ -70,7 +70,7 @@ pub fn render_doctor(analysis: &RepoAnalysis) -> String {
 pub fn render_harness_markdown(report: &HarnessReadinessReport) -> String {
     let mut output = String::new();
 
-    output.push_str("# RepoLens Harness Readiness\n\n");
+    output.push_str("# AgentReady Harness Readiness\n\n");
     output.push_str(&format!("- Root: `{}`\n", report.root));
     output.push_str(&format!("- Score: `{}/100`\n", report.score));
     output.push_str(&format!(
@@ -120,7 +120,7 @@ pub fn render_harness_markdown(report: &HarnessReadinessReport) -> String {
     output.push_str("\n## Notes\n\n");
     output.push_str(
         "Harness readiness checks validate project files and configuration only. \
-RepoLens does not run, call, or embed any AI model.\n",
+AgentReady does not run, call, or embed any AI model.\n",
     );
 
     output
@@ -179,7 +179,7 @@ mod tests {
 
         let markdown = render_markdown(&analysis);
 
-        assert!(markdown.contains("# RepoLens Report"));
+        assert!(markdown.contains("# AgentReady Report"));
         assert!(markdown.contains("## Top-Level Directories"));
         assert!(markdown.contains("- `src/`"));
         assert!(markdown.contains("**Rust**"));
@@ -193,7 +193,7 @@ mod tests {
 
         let markdown = render_harness_markdown(&report);
 
-        assert!(markdown.contains("# RepoLens Harness Readiness"));
+        assert!(markdown.contains("# AgentReady Harness Readiness"));
         assert!(markdown.contains("Score: `75/100`"));
         assert!(markdown.contains("## Codex"));
         assert!(markdown.contains("[!] **Codex skills**"));

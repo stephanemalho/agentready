@@ -1,18 +1,18 @@
-# RepoLens Roadmap
+# AgentReady Roadmap
 
-This roadmap is the product source of truth for planned RepoLens evolution.
+This roadmap is the product source of truth for planned AgentReady evolution.
 
 Agents must read this file before planning or implementing product, CLI, report, SaaS, GitHub, or roadmap-related work. Keep changes incremental, offline-safe by default, and aligned with the current Rust CLI architecture.
 
 ## Product North Star
 
-RepoLens helps teams verify whether their repositories are ready for reliable coding-agent workflows across Codex, Claude Code, Gemini CLI, and future harnesses.
+AgentReady helps teams verify whether their repositories are ready for reliable coding-agent workflows across Codex, Claude Code, Gemini CLI, and future harnesses.
 
 The CLI remains the open-source core. Future SaaS work should reuse the same analysis engine instead of creating separate business logic.
 
 ## Non-Negotiable Principles
 
-- RepoLens must not run, call, or embed AI models.
+- AgentReady must not run, call, or embed AI models.
 - Local CLI scans must remain deterministic, offline, and safe by default.
 - SaaS scans must request the minimum GitHub permissions needed to read repository files.
 - The same readiness rules must power CLI and SaaS reports.
@@ -29,8 +29,8 @@ Goal: make the local CLI a reliable harness-readiness checker for repositories.
 
 Required capabilities:
 
-- `repolens harness <path>` produces Markdown readiness reports.
-- `repolens harness <path> --format json` produces machine-readable reports.
+- `agentready harness <path>` produces Markdown readiness reports.
+- `agentready harness <path> --format json` produces machine-readable reports.
 - `--harness codex|claude|gemini` filters harness-specific checks.
 - Shared checks validate `AGENTS.md`, `docs/agent-rules/`, `docs/skills/`, sync scripts, and CI branch policy.
 - Codex checks validate `.codex/config.toml` and `.agents/skills/*/SKILL.md`.
@@ -39,7 +39,7 @@ Required capabilities:
 
 Exit criteria:
 
-- CLI report works against RepoLens itself.
+- CLI report works against AgentReady itself.
 - JSON output is stable enough for a web API.
 - Unit and integration tests cover pass/fail/warn readiness behavior.
 - README documents `scan`, `doctor`, and `harness`.
@@ -69,11 +69,11 @@ Exit criteria:
 
 Status: in progress. Implementation and tests are done; the remaining exit criterion is the crates.io publication.
 
-Goal: allow RepoLens logic to analyze a GitHub repository without requiring a local checkout.
+Goal: allow AgentReady logic to analyze a GitHub repository without requiring a local checkout.
 
 Required capabilities:
 
-- Must: add an open-source `LICENSE` file before the project gains visibility (MIT or Apache-2.0; dual MIT/Apache-2.0 is the Rust ecosystem standard). It is currently the only `repolens doctor` warning on this repository and blocks open-source adoption.
+- Must: add an open-source `LICENSE` file before the project gains visibility (MIT or Apache-2.0; dual MIT/Apache-2.0 is the Rust ecosystem standard). It is currently the only `agentready doctor` warning on this repository and blocks open-source adoption.
 - Introduce a repository source abstraction, for example `RepositorySource`.
 - Keep `LocalRepositorySource` for CLI filesystem scans.
 - Add `GitHubRepositorySource` behind a new module or crate boundary.
@@ -84,8 +84,8 @@ Required capabilities:
 Suggested CLI shape:
 
 ```bash
-repolens harness github:owner/repo
-repolens harness https://github.com/owner/repo
+agentready harness github:owner/repo
+agentready harness https://github.com/owner/repo
 ```
 
 Exit criteria:
@@ -93,7 +93,7 @@ Exit criteria:
 - Public GitHub repos can be scanned from a URL.
 - Local and GitHub sources produce the same report shape.
 - Network access is explicit and never used by ordinary local scans.
-- Must: the CLI is published on crates.io once Phase 3 is stable, so `cargo install repolens` works before the SaaS launch. It is the natural free distribution channel and builds product credibility ahead of Phase 4.
+- Must: the CLI is published on crates.io once Phase 3 is stable, so `cargo install agentready` works before the SaaS launch. It is the natural free distribution channel and builds product credibility ahead of Phase 4.
 
 ## Phase 4: SaaS MVP For Public Repositories
 
@@ -105,7 +105,7 @@ Required capabilities:
 
 - Web form accepts GitHub repository URL.
 - Backend validates owner/repo input.
-- Backend runs the RepoLens readiness engine against GitHub repository files.
+- Backend runs the AgentReady readiness engine against GitHub repository files.
 - UI displays global score, per-harness score, findings, evidence, and recommendations.
 - Scans are stored with timestamp and source commit SHA when available.
 - Users can rescan manually.

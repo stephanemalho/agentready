@@ -1,4 +1,4 @@
-# RepoLens Testing Rules
+# AgentReady Testing Rules
 
 ## Test Commands
 

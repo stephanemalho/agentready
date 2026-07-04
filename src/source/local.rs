@@ -115,7 +115,7 @@ mod tests {
 
     #[test]
     fn rejects_missing_paths() {
-        let error = snapshot(Path::new("/nonexistent/repolens-test-path")).unwrap_err();
+        let error = snapshot(Path::new("/nonexistent/agentready-test-path")).unwrap_err();
 
         assert!(error.to_string().contains("does not exist"));
     }

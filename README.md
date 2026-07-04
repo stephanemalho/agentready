@@ -1,10 +1,10 @@
-# RepoLens
+# AgentReady
 
 A Rust CLI for repository analysis and coding-agent harness readiness checks.
 
-RepoLens checks whether a project is understandable for developers and ready to be worked on by coding-agent harnesses such as Codex, Claude Code, and Gemini CLI. It scans local repositories or public GitHub repositories.
+AgentReady checks whether a project is understandable for developers and ready to be worked on by coding-agent harnesses such as Codex, Claude Code, and Gemini CLI. It scans local repositories or public GitHub repositories.
 
-RepoLens is local-first by design. Local scans read files on disk, respect `.gitignore`, and never touch the network. Only explicit `github:owner/repo` or GitHub URL targets call the GitHub API, and no AI service is ever called.
+AgentReady is local-first by design. Local scans read files on disk, respect `.gitignore`, and never touch the network. Only explicit `github:owner/repo` or GitHub URL targets call the GitHub API, and no AI service is ever called.
 
 ## Quick Start
 
@@ -19,32 +19,32 @@ cargo run -- harness .
 
 ```bash
 # Markdown report
-repolens scan /path/to/repo
+agentready scan /path/to/repo
 
 # JSON report
-repolens scan /path/to/repo --format json
+agentready scan /path/to/repo --format json
 
 # Write a report to disk
-repolens scan /path/to/repo --output repolens-report.md
+agentready scan /path/to/repo --output agentready-report.md
 
 # Compact health summary
-repolens doctor /path/to/repo
+agentready doctor /path/to/repo
 
 # Multi-harness readiness report
-repolens harness /path/to/repo
+agentready harness /path/to/repo
 
 # Harness-specific readiness checks
-repolens harness /path/to/repo --harness codex
-repolens harness /path/to/repo --harness claude
-repolens harness /path/to/repo --harness gemini
+agentready harness /path/to/repo --harness codex
+agentready harness /path/to/repo --harness claude
+agentready harness /path/to/repo --harness gemini
 
 # JSON readiness report
-repolens harness /path/to/repo --format json
+agentready harness /path/to/repo --format json
 
 # Scan a public GitHub repository without cloning it
-repolens harness github:owner/repo
-repolens harness https://github.com/owner/repo
-repolens scan github:owner/repo --format json
+agentready harness github:owner/repo
+agentready harness https://github.com/owner/repo
+agentready scan github:owner/repo --format json
 ```
 
 GitHub targets use the GitHub REST API. Set the optional `GITHUB_TOKEN`
@@ -65,7 +65,7 @@ The first version detects:
 
 ## Harness Readiness
 
-`repolens harness` checks whether a repository has the files and conventions needed for serious multi-agent work:
+`agentready harness` checks whether a repository has the files and conventions needed for serious multi-agent work:
 
 - canonical `AGENTS.md`
 - shared rules under `docs/agent-rules/`
@@ -78,7 +78,7 @@ The first version detects:
 
 Every check is backed by a stable rule ID (for example `shared.agents_md.exists` or `gemini.settings.context_agents`) with a severity (`info`, `low`, `medium`, `high`), evidence paths, an official-doc source, and remediation guidance for warnings and failures. These fields appear in both the Markdown and JSON reports, so the JSON output can be consumed as a stable contract.
 
-The readiness report validates project files and configuration only. RepoLens does not run, call, or embed any AI model.
+The readiness report validates project files and configuration only. AgentReady does not run, call, or embed any AI model.
 
 ## Development
 

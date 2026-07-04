@@ -1,10 +1,10 @@
 [package]
-name = "repolens"
+name = "agentready"
 version = "0.1.0"
 edition = "2024"
-description = "Offline repository analysis CLI that checks coding-agent harness readiness."
+description = "Repository analysis CLI that checks coding-agent harness readiness."
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/stephanemalho/repolens"
+repository = "https://github.com/stephanemalho/agentready"
 
 [dependencies]
 anyhow = "1.0.103"

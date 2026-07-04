@@ -1,4 +1,4 @@
-# RepoLens Security Rules
+# AgentReady Security Rules
 
 ## Secrets
 

@@ -1,18 +1,18 @@
-# RepoLens Data Model Rules
+# AgentReady Data Model Rules
 
 ## Data Ownership
 
 | Entity | Owner | Source of truth |
 |---|---|---|
-| `RepoAnalysis` | RepoLens analyzer | Local repository files |
-| `DetectedStack` | RepoLens detectors | File marker evidence |
-| `HealthChecks` | RepoLens analyzer | Local repository files |
-| Markdown report | RepoLens report renderer | `RepoAnalysis` |
-| JSON report | RepoLens report renderer | `RepoAnalysis` |
+| `RepoAnalysis` | AgentReady analyzer | Local repository files |
+| `DetectedStack` | AgentReady detectors | File marker evidence |
+| `HealthChecks` | AgentReady analyzer | Local repository files |
+| Markdown report | AgentReady report renderer | `RepoAnalysis` |
+| JSON report | AgentReady report renderer | `RepoAnalysis` |
 
 ## Migration Rules
 
-- RepoLens V1 has no database and no migrations.
+- AgentReady V1 has no database and no migrations.
 - If persistent configuration is added later, document the file format and backward compatibility rules before implementation.
 
 ## API/Data Contracts
