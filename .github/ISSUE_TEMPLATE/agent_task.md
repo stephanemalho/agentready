@@ -30,13 +30,22 @@ Describe the task.
 Allowed files/folders:
 
 ```txt
-PATHS_REPLACE_ME
+src/
+tests/
+docs/
+README.md
+AGENTS.md
+Cargo.toml
 ```
 
 Forbidden files/folders:
 
 ```txt
-PATHS_REPLACE_ME
+.git/
+target/
+.env
+.env.*
+secrets/
 ```
 
 ## Required reading
@@ -48,10 +57,13 @@ PATHS_REPLACE_ME
 ## Validation
 
 ```bash
-COMMANDS_REPLACE_ME
+scripts/validate-agent-template.sh
+scripts/agent-preflight.sh
+cargo fmt --check
+cargo clippy -- -D warnings
+cargo test
 ```
 
 ## Human notes
 
 Add context, constraints, or acceptance criteria.
-

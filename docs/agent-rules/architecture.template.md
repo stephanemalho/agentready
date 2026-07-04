@@ -1,29 +1,31 @@
-# Architecture Rules Template
-
-Replace this template with project-specific architecture constraints.
+# RepoLens Architecture Rules
 
 ## Layers
 
-Document the intended boundaries.
-
 ```txt
-UI / API / Application / Domain / Infrastructure
+CLI -> Analyzer -> Detectors -> Report Renderers -> Filesystem
 ```
 
 ## Allowed Dependencies
 
-- `LAYER_A` may depend on:
-- `LAYER_B` may not depend on:
+- `src/main.rs` may only parse the top-level CLI and delegate to `src/cli.rs`.
+- `src/cli.rs` may call analyzer and report rendering code, and may perform explicit user-requested output writes.
+- `src/analyzer/` owns repository walking, file inventory, and analysis assembly.
+- `src/detectors/` owns pure stack and marker detection from relative file paths.
+- `src/report/` owns Markdown, JSON, and doctor output formatting.
+- Detector and report modules must not perform filesystem or network I/O.
+- V1 must not include an AI SDK or network-backed analysis layer.
 
 ## File Routing
 
 | Concern | Location |
 |---|---|
-| UI components | `PATH_REPLACE_ME` |
-| API routes | `PATH_REPLACE_ME` |
-| Domain logic | `PATH_REPLACE_ME` |
-| Persistence | `PATH_REPLACE_ME` |
-| Tests | `PATH_REPLACE_ME` |
+| CLI parsing and command dispatch | `src/cli.rs` |
+| Repository analysis | `src/analyzer/` |
+| Stack detection | `src/detectors/` |
+| Report rendering | `src/report/` |
+| Binary entrypoint | `src/main.rs` |
+| Integration CLI tests | `tests/` |
 
 ## Refactor Rules
 
@@ -31,4 +33,5 @@ UI / API / Application / Domain / Infrastructure
 - Preserve public contracts unless the task explicitly changes them.
 - Update docs when architecture changes.
 - Add a decision record for important tradeoffs.
-
+- Keep structs serializable when they are part of JSON output.
+- Keep report output stable enough for tests and future agent consumption.

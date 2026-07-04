@@ -1,18 +1,19 @@
-# Testing Rules Template
-
-Use this file for testing expectations shared by every harness.
+# RepoLens Testing Rules
 
 ## Test Commands
 
 ```bash
 # Unit
-COMMAND_REPLACE_ME
+cargo test --lib
 
 # Integration
-COMMAND_REPLACE_ME
+cargo test --test cli
 
-# E2E
-COMMAND_REPLACE_ME
+# Full local validation
+cargo fmt --check
+cargo clippy -- -D warnings
+cargo test
+cargo build --release
 ```
 
 ## Test Policy
@@ -24,10 +25,10 @@ COMMAND_REPLACE_ME
 
 ## Fixtures
 
-- Fixture location:
-- Mocking policy:
-- Network policy:
-- Database policy:
+- Fixture location: inline temp directories for simple CLI tests; `tests/fixtures/` may be added when fixtures become reusable.
+- Mocking policy: prefer real temporary directories and real files over mocks.
+- Network policy: tests must not require network access.
+- Database policy: no database in V1.
 
 ## Reporting
 
@@ -37,4 +38,3 @@ When reporting completion, include:
 - pass/fail status
 - important failures
 - skipped checks and why
-

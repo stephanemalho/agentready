@@ -1,29 +1,28 @@
-# Data Model Rules Template
-
-Use this file for schema, persistence, migrations, and data contracts.
+# RepoLens Data Model Rules
 
 ## Data Ownership
 
 | Entity | Owner | Source of truth |
 |---|---|---|
-| `ENTITY_REPLACE_ME` | `OWNER_REPLACE_ME` | `SOURCE_REPLACE_ME` |
+| `RepoAnalysis` | RepoLens analyzer | Local repository files |
+| `DetectedStack` | RepoLens detectors | File marker evidence |
+| `HealthChecks` | RepoLens analyzer | Local repository files |
+| Markdown report | RepoLens report renderer | `RepoAnalysis` |
+| JSON report | RepoLens report renderer | `RepoAnalysis` |
 
 ## Migration Rules
 
-- Never edit applied migrations unless explicitly approved.
-- Add forward-only migrations when the framework supports them.
-- Include rollback notes when rollback is manual.
-- Validate migrations against a clean database and an upgraded database when practical.
+- RepoLens V1 has no database and no migrations.
+- If persistent configuration is added later, document the file format and backward compatibility rules before implementation.
 
 ## API/Data Contracts
 
-- Contract files:
-- Generated types:
-- Compatibility policy:
+- Contract files: Rust serializable structs used for JSON output.
+- Generated types: none.
+- Compatibility policy: avoid unnecessary JSON field renames once released; additive fields are preferred.
 
 ## Test Data
 
-- Fixtures location:
-- Seed command:
-- Data that must not be used in tests:
-
+- Fixtures location: temporary directories in tests; reusable fixtures may live under `tests/fixtures/`.
+- Seed command: not applicable.
+- Data that must not be used in tests: real secrets, private customer repositories, private keys, tokens, or certificate material.

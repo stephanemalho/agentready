@@ -17,12 +17,11 @@ git status --short
 
 ## Project Checks
 
-Fill these in `AGENTS.md` and project-specific rule files:
-
 ```bash
-PROJECT_LINT_COMMAND_REPLACE_ME
-PROJECT_TEST_COMMAND_REPLACE_ME
-PROJECT_BUILD_COMMAND_REPLACE_ME
+cargo fmt --check
+cargo clippy -- -D warnings
+cargo test
+cargo build --release
 ```
 
 ## Report Format
@@ -43,4 +42,3 @@ Branch:
 - current branch
 - sync status with origin/main
 ```
-

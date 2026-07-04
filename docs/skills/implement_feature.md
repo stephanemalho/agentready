@@ -23,9 +23,10 @@ Run the narrowest useful checks first, then broader checks when risk justifies i
 Examples:
 
 ```bash
-PROJECT_TARGETED_TEST_COMMAND_REPLACE_ME
-PROJECT_TEST_COMMAND_REPLACE_ME
-PROJECT_BUILD_COMMAND_REPLACE_ME
+cargo test --lib
+cargo test --test cli
+cargo test
+cargo build --release
 ```
 
 ## Final Report
@@ -37,4 +38,3 @@ Include:
 - tests/checks
 - sync status with `origin/main`
 - risks or follow-up work
-
