@@ -1,0 +1,37 @@
+# Codex project adapter.
+# Keep this file thin. Canonical rules live in AGENTS.md and docs/.
+
+project_doc_max_bytes = 65536
+project_doc_fallback_filenames = ["GEMINI.md", "CLAUDE.md"]
+
+developer_instructions = """
+Multi-harness Codex adaptation layer.
+
+Use AGENTS.md as the canonical project entrypoint. It points to neutral project knowledge in docs/.
+
+Do not duplicate canonical project rules here. This file is only the Codex adapter.
+
+Before touching code:
+1. Read AGENTS.md.
+2. Identify the task type.
+3. Read the relevant files from docs/agent-rules/.
+4. Read the relevant workflow from docs/skills/.
+5. Use repo skills under .agents/skills/ when a task matches their descriptions.
+6. Run scripts/agent-preflight.sh.
+7. If behind origin/main, run scripts/agent-sync-main.sh and repeat preflight.
+
+Treat docs/agent-rules/*.md as the canonical project conventions.
+
+Before changing Codex-specific files, check the official Codex documentation:
+- https://developers.openai.com/codex/guides/agents-md
+- https://developers.openai.com/codex/config-basic
+- https://developers.openai.com/codex/config-advanced
+- https://developers.openai.com/codex/config-reference
+- https://developers.openai.com/codex/skills
+- https://developers.openai.com/codex/subagents
+
+Before reporting completion for any task, apply docs/skills/do_work.md.
+
+Do not merge or push directly to main. The human maintainer owns final merge.
+"""
+

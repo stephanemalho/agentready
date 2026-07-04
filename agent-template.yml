@@ -1,0 +1,35 @@
+template:
+  name: multi-harness-agent-template
+  version: 0.1.0
+  last_reviewed: 2026-07-04
+
+branches:
+  main: main
+  required_agent_pattern: "agent/<harness>/<ticket-or-task>/<short-slug>"
+  seed_branches:
+    - agent/codex/template
+    - agent/claude/template
+    - agent/gemini/template
+
+canonical_sources:
+  entrypoint: AGENTS.md
+  rules: docs/agent-rules/
+  workflows: docs/skills/
+  harness_docs: docs/harness/
+
+harnesses:
+  codex:
+    adapter: .codex/config.toml
+    skills: .agents/skills/
+  claude:
+    adapter: CLAUDE.md
+    config: .claude/
+  gemini:
+    adapter: GEMINI.md
+    config: .gemini/
+
+required_checks:
+  - scripts/validate-agent-template.sh
+  - scripts/agent-preflight.sh
+  - scripts/ci-secret-scan.sh
+

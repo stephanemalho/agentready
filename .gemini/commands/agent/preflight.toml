@@ -1,0 +1,11 @@
+description = "Run the agent branch and main-sync preflight."
+prompt = """
+Run and summarize this command:
+
+```bash
+scripts/agent-preflight.sh
+```
+
+If the branch is behind origin/main, tell me to run `/agent:sync-main`.
+"""
+

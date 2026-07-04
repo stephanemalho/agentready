@@ -1,0 +1,33 @@
+.DS_Store
+
+# Local env and secrets
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+*.p12
+
+# Local harness state
+.claude/settings.local.json
+.codex-log/
+.gemini/worktrees/
+.gemini/tmp/
+
+# Logs and caches
+logs/
+tmp/
+temp/
+.cache/
+node_modules/
+dist/
+build/
+coverage/
+.pytest_cache/
+__pycache__/
+*.pyc
+
+
+# Rust
+/target/

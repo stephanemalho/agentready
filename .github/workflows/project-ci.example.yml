@@ -1,0 +1,37 @@
+name: Project CI Example
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  project-ci:
+    name: Fill this with project checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Replace with setup
+        run: |
+          echo "Replace this workflow with project-specific setup."
+          echo "Examples: npm ci, pnpm install, uv sync, pip install -r requirements.txt"
+
+      - name: Replace with lint
+        run: |
+          echo "PROJECT_LINT_COMMAND_REPLACE_ME"
+
+      - name: Replace with tests
+        run: |
+          echo "PROJECT_TEST_COMMAND_REPLACE_ME"
+
+      - name: Replace with build
+        run: |
+          echo "PROJECT_BUILD_COMMAND_REPLACE_ME"
+

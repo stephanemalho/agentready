@@ -1,0 +1,10 @@
+{
+  "context": {
+    "fileName": ["AGENTS.md"]
+  },
+  "experimental": {
+    "enableAgents": true,
+    "worktrees": true
+  }
+}
+

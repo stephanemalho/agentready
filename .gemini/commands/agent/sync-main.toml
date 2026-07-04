@@ -1,0 +1,11 @@
+description = "Sync the current agent branch with origin/main."
+prompt = """
+Run and summarize this command:
+
+```bash
+scripts/agent-sync-main.sh
+```
+
+If conflicts occur, stop and report the conflicted files.
+"""
+
