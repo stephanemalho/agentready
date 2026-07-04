@@ -159,6 +159,30 @@ fn harness_can_filter_to_codex() {
         .stdout(predicate::str::contains("## Gemini CLI").not());
 }
 
+#[test]
+fn harness_rejects_malformed_github_target() {
+    let mut command = Command::cargo_bin("repolens").expect("binary");
+    command.arg("harness").arg("github:owner-without-repo");
+
+    command
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("expected github:owner/repo"));
+}
+
+#[test]
+#[ignore = "requires network access; run manually with cargo test -- --ignored"]
+fn harness_scans_github_repository_live() {
+    let mut command = Command::cargo_bin("repolens").expect("binary");
+    command.arg("harness").arg("github:stephanemalho/repolens");
+
+    command
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("# RepoLens Harness Readiness"))
+        .stdout(predicate::str::contains("github:stephanemalho/repolens"));
+}
+
 fn fixture_repo() -> tempfile::TempDir {
     let repo = tempdir().expect("tempdir");
     fs::write(

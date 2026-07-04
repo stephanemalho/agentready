@@ -16,19 +16,19 @@ Keep this file short, current, and practical. Put detailed project knowledge in 
 
 ## Product Direction
 
-RepoLens is an offline repository analysis CLI. It scans local repositories, reports project health, and checks whether a repo is ready for coding-agent harnesses such as Codex, Claude Code, and Gemini CLI.
+RepoLens is a repository analysis CLI. It scans local repositories or public GitHub repositories, reports project health, and checks whether a repo is ready for coding-agent harnesses such as Codex, Claude Code, and Gemini CLI.
 
 Product roadmap: `docs/ROADMAP.md`.
 
 Agents must read `docs/ROADMAP.md` before planning or implementing product, CLI, report, SaaS, GitHub, or roadmap-related work.
 
-V1 must stay deterministic and local-first:
+The CLI must stay deterministic and local-first:
 
 - no external AI SDK
-- no network calls during scans
-- no API keys required
+- no network calls during local scans; only explicit `github:owner/repo` or GitHub URL targets use the GitHub API (code isolated in `src/source/`)
+- no API keys required; `GITHUB_TOKEN` is optional for GitHub targets and its value is never printed
 - no secret values printed in output
-- Markdown and JSON reports generated from local files only
+- Markdown and JSON reports generated from repository files only
 - harness readiness checks validate files and configuration, not model behavior
 
 ## Source Of Truth
@@ -131,6 +131,7 @@ If a command is unavailable, report why. Do not claim validation passed without 
 
 - Keep `src/main.rs` as a thin entrypoint.
 - Put CLI parsing in `src/cli.rs`.
+- Put repository acquisition (target parsing, local walk, GitHub API) in `src/source/`; it is the only module allowed to do I/O.
 - Put repository analysis in `src/analyzer/`.
 - Put stack detection in `src/detectors/`.
 - Put coding-agent harness readiness checks in `src/harness/`.

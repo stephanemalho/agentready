@@ -1,7 +1,7 @@
 use serde::Serialize;
 use serde_json::Value as JsonValue;
 
-use crate::analyzer::{RepositorySnapshot, snapshot_repository};
+use crate::analyzer::RepositorySnapshot;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum HarnessFilter {
@@ -288,34 +288,59 @@ const RULE_GEMINI_COMMAND_TOML: Rule = Rule {
 };
 
 pub fn analyze_harness_readiness(
-    path: impl AsRef<std::path::Path>,
+    snapshot: &RepositorySnapshot,
     filter: HarnessFilter,
-) -> anyhow::Result<HarnessReadinessReport> {
-    let snapshot = snapshot_repository(path)?;
+) -> HarnessReadinessReport {
     let mut checks = Vec::new();
 
-    add_shared_checks(&snapshot, &mut checks);
+    add_shared_checks(snapshot, &mut checks);
 
     match filter {
         HarnessFilter::All => {
-            add_codex_checks(&snapshot, &mut checks);
-            add_claude_checks(&snapshot, &mut checks);
-            add_gemini_checks(&snapshot, &mut checks);
+            add_codex_checks(snapshot, &mut checks);
+            add_claude_checks(snapshot, &mut checks);
+            add_gemini_checks(snapshot, &mut checks);
         }
-        HarnessFilter::Codex => add_codex_checks(&snapshot, &mut checks),
-        HarnessFilter::Claude => add_claude_checks(&snapshot, &mut checks),
-        HarnessFilter::Gemini => add_gemini_checks(&snapshot, &mut checks),
+        HarnessFilter::Codex => add_codex_checks(snapshot, &mut checks),
+        HarnessFilter::Claude => add_claude_checks(snapshot, &mut checks),
+        HarnessFilter::Gemini => add_gemini_checks(snapshot, &mut checks),
     }
 
     let summary = summarize(&checks);
     let score = score(&summary);
 
-    Ok(HarnessReadinessReport {
-        root: snapshot.root_display(),
+    HarnessReadinessReport {
+        root: snapshot.root.clone(),
         score,
         summary,
         checks,
-    })
+    }
+}
+
+pub fn content_paths(files: &[String]) -> Vec<String> {
+    const NAMED_FILES: [&str; 6] = [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "GEMINI.md",
+        ".codex/config.toml",
+        ".claude/settings.json",
+        ".gemini/settings.json",
+    ];
+
+    let mut paths: Vec<String> = NAMED_FILES
+        .iter()
+        .map(|file| file.to_string())
+        .filter(|file| files.contains(file))
+        .collect();
+
+    paths.extend(
+        files
+            .iter()
+            .filter(|file| file.starts_with(".gemini/commands/"))
+            .cloned(),
+    );
+
+    paths
 }
 
 fn add_shared_checks(snapshot: &RepositorySnapshot, checks: &mut Vec<HarnessCheck>) {
@@ -738,7 +763,31 @@ mod tests {
 
     use tempfile::tempdir;
 
+    use crate::source::{RepositoryTarget, load_snapshot};
+
     use super::*;
+
+    fn snapshot_of(path: &std::path::Path) -> RepositorySnapshot {
+        load_snapshot(&RepositoryTarget::Local(path.to_path_buf())).expect("snapshot")
+    }
+
+    #[test]
+    fn selects_content_paths_for_harness_checks() {
+        let files = vec![
+            "AGENTS.md".to_string(),
+            "README.md".to_string(),
+            ".codex/config.toml".to_string(),
+            ".gemini/commands/agent/preflight.toml".to_string(),
+        ];
+
+        let paths = content_paths(&files);
+
+        assert!(paths.contains(&"AGENTS.md".to_string()));
+        assert!(paths.contains(&".codex/config.toml".to_string()));
+        assert!(paths.contains(&".gemini/commands/agent/preflight.toml".to_string()));
+        assert!(!paths.contains(&"README.md".to_string()));
+        assert!(!paths.contains(&"CLAUDE.md".to_string()));
+    }
 
     const ALL_RULES: [&Rule; 21] = [
         &RULE_SHARED_AGENTS_MD,
@@ -769,7 +818,7 @@ mod tests {
         let repo = tempdir().expect("tempdir");
         write_ready_project(repo.path());
 
-        let report = analyze_harness_readiness(repo.path(), HarnessFilter::All).expect("report");
+        let report = analyze_harness_readiness(&snapshot_of(repo.path()), HarnessFilter::All);
 
         assert_eq!(report.summary.failed, 0);
         assert!(report.score >= 90);
@@ -786,7 +835,7 @@ mod tests {
         let repo = tempdir().expect("tempdir");
         fs::write(repo.path().join("README.md"), "# Demo\n").unwrap();
 
-        let report = analyze_harness_readiness(repo.path(), HarnessFilter::All).expect("report");
+        let report = analyze_harness_readiness(&snapshot_of(repo.path()), HarnessFilter::All);
 
         assert!(report.summary.failed > 0);
         assert!(report.checks.iter().any(
@@ -803,7 +852,7 @@ mod tests {
         fs::write(repo.path().join(".claude/settings.local.json"), "{}\n").unwrap();
         fs::write(repo.path().join("CLAUDE.md"), "# Claude\n").unwrap();
 
-        let report = analyze_harness_readiness(repo.path(), HarnessFilter::All).expect("report");
+        let report = analyze_harness_readiness(&snapshot_of(repo.path()), HarnessFilter::All);
 
         let failed_ids: Vec<&str> = report
             .checks
@@ -857,7 +906,7 @@ mod tests {
         let repo = tempdir().expect("tempdir");
         fs::write(repo.path().join("README.md"), "# Demo\n").unwrap();
 
-        let report = analyze_harness_readiness(repo.path(), HarnessFilter::All).expect("report");
+        let report = analyze_harness_readiness(&snapshot_of(repo.path()), HarnessFilter::All);
 
         for check in &report.checks {
             match check.status {

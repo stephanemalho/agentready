@@ -1,9 +1,6 @@
-use std::collections::BTreeSet;
-use std::fs;
-use std::path::{Path, PathBuf};
+use std::collections::BTreeMap;
 
-use anyhow::{Context, bail};
-use ignore::WalkBuilder;
+use anyhow::anyhow;
 use serde::Serialize;
 
 use crate::detectors::detect_stacks;
@@ -34,16 +31,13 @@ pub struct HealthChecks {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RepositorySnapshot {
-    pub root: PathBuf,
+    pub root: String,
     pub files: Vec<String>,
     pub top_level_directories: Vec<String>,
+    pub contents: BTreeMap<String, String>,
 }
 
 impl RepositorySnapshot {
-    pub fn root_display(&self) -> String {
-        self.root.display().to_string()
-    }
-
     pub fn has_file(&self, file: &str) -> bool {
         self.files.iter().any(|candidate| candidate == file)
     }
@@ -63,88 +57,18 @@ impl RepositorySnapshot {
     }
 
     pub fn read_file(&self, file: &str) -> anyhow::Result<String> {
-        fs::read_to_string(self.root.join(file))
-            .with_context(|| format!("failed to read {}", self.root.join(file).display()))
+        self.contents
+            .get(file)
+            .cloned()
+            .ok_or_else(|| anyhow!("no content available for {file}"))
     }
 }
 
-pub fn snapshot_repository(path: impl AsRef<Path>) -> anyhow::Result<RepositorySnapshot> {
-    let root = path.as_ref();
-
-    if !root.exists() {
-        bail!("repository path does not exist: {}", root.display());
-    }
-
-    if !root.is_dir() {
-        bail!("repository path is not a directory: {}", root.display());
-    }
-
-    let root = root
-        .canonicalize()
-        .with_context(|| format!("failed to canonicalize {}", root.display()))?;
-
-    let mut files = Vec::new();
-    let mut top_level_directories = BTreeSet::new();
-
-    let walker = WalkBuilder::new(&root)
-        .hidden(false)
-        .git_ignore(true)
-        .git_exclude(true)
-        .build();
-
-    for entry in walker {
-        let entry = entry.with_context(|| format!("failed to walk {}", root.display()))?;
-        let path = entry.path();
-
-        if path == root {
-            continue;
-        }
-
-        let relative = path
-            .strip_prefix(&root)
-            .with_context(|| format!("failed to relativize {}", path.display()))?;
-
-        let first_component = relative
-            .components()
-            .next()
-            .map(|component| component.as_os_str().to_string_lossy().into_owned());
-
-        if first_component.as_deref() == Some(".git") {
-            continue;
-        }
-
-        if let Some(first_component) = first_component
-            && entry
-                .file_type()
-                .is_some_and(|file_type| file_type.is_dir())
-        {
-            top_level_directories.insert(first_component);
-        }
-
-        if entry
-            .file_type()
-            .is_some_and(|file_type| file_type.is_file())
-        {
-            files.push(relative.to_string_lossy().replace('\\', "/"));
-        }
-    }
-
-    files.sort();
-
-    Ok(RepositorySnapshot {
-        root,
-        files,
-        top_level_directories: top_level_directories.into_iter().collect(),
-    })
-}
-
-pub fn analyze_repository(path: impl AsRef<Path>) -> anyhow::Result<RepoAnalysis> {
-    let snapshot = snapshot_repository(path)?;
-
-    Ok(RepoAnalysis {
-        root: snapshot.root_display(),
+pub fn analyze_repository(snapshot: &RepositorySnapshot) -> RepoAnalysis {
+    RepoAnalysis {
+        root: snapshot.root.clone(),
         file_count: snapshot.files.len(),
-        top_level_directories: snapshot.top_level_directories,
+        top_level_directories: snapshot.top_level_directories.clone(),
         detected_stacks: detect_stacks(&snapshot.files),
         health: HealthChecks {
             readme: has_any(&snapshot.files, &["README.md", "README.markdown"]),
@@ -168,7 +92,7 @@ pub fn analyze_repository(path: impl AsRef<Path>) -> anyhow::Result<RepoAnalysis
                 .iter()
                 .any(|file| file.starts_with("tests/") || file.ends_with("_test.rs")),
         },
-    })
+    }
 }
 
 fn has_any(files: &[String], candidates: &[&str]) -> bool {
@@ -183,7 +107,13 @@ mod tests {
 
     use tempfile::tempdir;
 
+    use crate::source::{RepositoryTarget, load_snapshot};
+
     use super::*;
+
+    fn local_snapshot(path: &std::path::Path) -> RepositorySnapshot {
+        load_snapshot(&RepositoryTarget::Local(path.to_path_buf())).expect("snapshot")
+    }
 
     #[test]
     fn analyzes_basic_rust_repository() {
@@ -197,7 +127,7 @@ mod tests {
         fs::create_dir(temp.path().join("tests")).unwrap();
         fs::write(temp.path().join("tests/cli.rs"), "#[test]\nfn ok() {}\n").unwrap();
 
-        let analysis = analyze_repository(temp.path()).expect("analysis");
+        let analysis = analyze_repository(&local_snapshot(temp.path()));
 
         assert_eq!(analysis.file_count, 3);
         assert!(analysis.health.readme);
@@ -216,7 +146,7 @@ mod tests {
         fs::write(temp.path().join("LICENSE-MIT"), "MIT License\n").unwrap();
         fs::write(temp.path().join("LICENSE-APACHE"), "Apache License\n").unwrap();
 
-        let analysis = analyze_repository(temp.path()).expect("analysis");
+        let analysis = analyze_repository(&local_snapshot(temp.path()));
 
         assert!(analysis.health.license);
     }

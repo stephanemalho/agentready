@@ -67,7 +67,7 @@ Exit criteria:
 
 ## Phase 3: GitHub Repository Source
 
-Status: planned.
+Status: in progress. Implementation and tests are done; the remaining exit criterion is the crates.io publication.
 
 Goal: allow RepoLens logic to analyze a GitHub repository without requiring a local checkout.
 

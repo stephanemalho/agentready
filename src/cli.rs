@@ -9,6 +9,7 @@ use crate::harness::{HarnessFilter, analyze_harness_readiness};
 use crate::report::{
     render_doctor, render_harness_json, render_harness_markdown, render_json, render_markdown,
 };
+use crate::source::{load_snapshot, parse_target};
 
 #[derive(Debug, Parser)]
 #[command(name = "repolens")]
@@ -21,19 +22,19 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Command {
-    /// Analyze a local repository and write a report.
+    /// Analyze a repository and write a report.
     Scan(ScanArgs),
-    /// Print a quick health summary for a local repository.
-    Doctor(PathArgs),
+    /// Print a quick health summary for a repository.
+    Doctor(TargetArgs),
     /// Check whether a repository is ready for coding-agent harnesses.
     Harness(HarnessArgs),
 }
 
 #[derive(Debug, Args)]
 struct ScanArgs {
-    /// Repository path to analyze.
+    /// Repository to analyze: local path, github:owner/repo, or GitHub URL.
     #[arg(default_value = ".")]
-    path: PathBuf,
+    target: String,
 
     /// Output format.
     #[arg(long, value_enum, default_value_t = OutputFormat::Markdown)]
@@ -45,17 +46,17 @@ struct ScanArgs {
 }
 
 #[derive(Debug, Args)]
-struct PathArgs {
-    /// Repository path to analyze.
+struct TargetArgs {
+    /// Repository to analyze: local path, github:owner/repo, or GitHub URL.
     #[arg(default_value = ".")]
-    path: PathBuf,
+    target: String,
 }
 
 #[derive(Debug, Args)]
 struct HarnessArgs {
-    /// Repository path to analyze.
+    /// Repository to analyze: local path, github:owner/repo, or GitHub URL.
     #[arg(default_value = ".")]
-    path: PathBuf,
+    target: String,
 
     /// Harness to check.
     #[arg(long, value_enum, default_value_t = HarnessSelection::All)]
@@ -93,36 +94,36 @@ pub fn run(cli: Cli) -> anyhow::Result<()> {
 }
 
 fn run_scan(args: ScanArgs) -> anyhow::Result<()> {
-    let analysis = analyze_repository(&args.path)?;
+    let snapshot = load_snapshot(&parse_target(&args.target)?)?;
+    let analysis = analyze_repository(&snapshot);
     let content = match args.format {
         OutputFormat::Markdown => render_markdown(&analysis),
         OutputFormat::Json => render_json(&analysis)?,
     };
 
-    if let Some(output) = args.output {
-        fs::write(&output, content)
-            .with_context(|| format!("failed to write report to {}", output.display()))?;
-    } else {
-        println!("{content}");
-    }
-
-    Ok(())
+    write_report(content, args.output)
 }
 
-fn run_doctor(args: PathArgs) -> anyhow::Result<()> {
-    let analysis = analyze_repository(args.path)?;
+fn run_doctor(args: TargetArgs) -> anyhow::Result<()> {
+    let snapshot = load_snapshot(&parse_target(&args.target)?)?;
+    let analysis = analyze_repository(&snapshot);
     println!("{}", render_doctor(&analysis));
     Ok(())
 }
 
 fn run_harness(args: HarnessArgs) -> anyhow::Result<()> {
-    let report = analyze_harness_readiness(args.path, args.harness.into())?;
+    let snapshot = load_snapshot(&parse_target(&args.target)?)?;
+    let report = analyze_harness_readiness(&snapshot, args.harness.into());
     let content = match args.format {
         OutputFormat::Markdown => render_harness_markdown(&report),
         OutputFormat::Json => render_harness_json(&report)?,
     };
 
-    if let Some(output) = args.output {
+    write_report(content, args.output)
+}
+
+fn write_report(content: String, output: Option<PathBuf>) -> anyhow::Result<()> {
+    if let Some(output) = output {
         fs::write(&output, content)
             .with_context(|| format!("failed to write report to {}", output.display()))?;
     } else {
