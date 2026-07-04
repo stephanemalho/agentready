@@ -18,6 +18,10 @@ Keep this file short, current, and practical. Put detailed project knowledge in 
 
 RepoLens is an offline repository analysis CLI. It scans local repositories, reports project health, and checks whether a repo is ready for coding-agent harnesses such as Codex, Claude Code, and Gemini CLI.
 
+Product roadmap: `docs/ROADMAP.md`.
+
+Agents must read `docs/ROADMAP.md` before planning or implementing product, CLI, report, SaaS, GitHub, or roadmap-related work.
+
 V1 must stay deterministic and local-first:
 
 - no external AI SDK
@@ -32,10 +36,11 @@ V1 must stay deterministic and local-first:
 Use this order when gathering project instructions:
 
 1. `AGENTS.md`
-2. `docs/agent-rules/README.md`
-3. The task-specific files in `docs/agent-rules/`
-4. The task-specific workflow in `docs/skills/`
-5. Harness-specific adapter docs only when working on that harness
+2. `docs/ROADMAP.md` for product direction, milestones, SaaS plans, and future GitHub integration
+3. `docs/agent-rules/README.md`
+4. The task-specific files in `docs/agent-rules/`
+5. The task-specific workflow in `docs/skills/`
+6. Harness-specific adapter docs only when working on that harness
 
 Do not put canonical business rules only in `.codex/`, `.claude/`, `.gemini/`, or another harness folder.
 
@@ -91,13 +96,15 @@ The agent must repeat the preflight before opening a pull request or reporting c
 
 | Task type | Required reading |
 |---|---|
-| New feature or behavior change | `docs/skills/implement_feature.md`, `docs/agent-rules/architecture.template.md`, `docs/agent-rules/testing.template.md` |
+| New feature or behavior change | `docs/ROADMAP.md`, `docs/skills/implement_feature.md`, `docs/agent-rules/architecture.template.md`, `docs/agent-rules/testing.template.md` |
 | Bug fix | `docs/skills/implement_feature.md`, `docs/agent-rules/testing.template.md`, `docs/agent-rules/verification.md` |
 | Business rule change | `docs/agent-rules/business-rules.template.md`, `docs/templates/project-profile.template.md` |
 | Data model or schema change | `docs/agent-rules/data-model.template.md`, `docs/skills/implement_feature.md` |
+| SaaS, GitHub API, or hosted scan work | `docs/ROADMAP.md`, `docs/agent-rules/architecture.template.md`, `docs/agent-rules/security.template.md` |
 | Security or secret handling | `docs/agent-rules/security.template.md`, `docs/agent-rules/verification.md` |
 | CI or workflow change | `docs/agent-rules/git-workflow.md`, `.github/workflows/`, `scripts/` |
 | Harness configuration change | `docs/harness/<harness>.md`, official harness docs |
+| Roadmap update | `docs/ROADMAP.md`, `docs/skills/update_agent_rules.md` |
 | Rule or documentation update | `docs/skills/update_agent_rules.md`, `docs/agent-rules/README.md` |
 | Completion/reporting | `docs/skills/do_work.md` |
 
