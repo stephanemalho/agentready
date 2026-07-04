@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use anyhow::{Context, bail};
 use serde_json::Value as JsonValue;
 
-use crate::analyzer::RepositorySnapshot;
+use crate::analyzer::{RepositorySnapshot, RepositorySourceMetadata};
 use crate::harness::content_paths;
 
 const API_ROOT: &str = "https://api.github.com";
@@ -17,6 +17,7 @@ pub fn snapshot(owner: &str, repo: &str) -> anyhow::Result<RepositorySnapshot> {
     )
     .with_context(|| format!("failed to read GitHub repository github:{owner}/{repo}"))?;
     let default_branch = parse_default_branch(&metadata)?;
+    let commit_sha = default_branch_commit_sha(owner, repo, &default_branch, token.as_deref());
 
     let tree = get_json(
         &format!("{API_ROOT}/repos/{owner}/{repo}/git/trees/{default_branch}?recursive=1"),
@@ -47,6 +48,7 @@ clone it locally and scan the local path instead"
 
     Ok(RepositorySnapshot {
         root: format!("github:{owner}/{repo}"),
+        source: RepositorySourceMetadata::github(owner, repo, &default_branch, commit_sha),
         files: listing.files,
         top_level_directories: listing.top_level_directories,
         contents,
@@ -65,6 +67,27 @@ fn parse_default_branch(metadata: &JsonValue) -> anyhow::Result<String> {
         .and_then(JsonValue::as_str)
         .map(str::to_string)
         .context("GitHub repository metadata has no default_branch field")
+}
+
+fn default_branch_commit_sha(
+    owner: &str,
+    repo: &str,
+    default_branch: &str,
+    token: Option<&str>,
+) -> Option<String> {
+    get_json(
+        &format!("{API_ROOT}/repos/{owner}/{repo}/branches/{default_branch}"),
+        token,
+    )
+    .ok()
+    .and_then(|branch| parse_head_commit_sha(&branch))
+}
+
+fn parse_head_commit_sha(branch: &JsonValue) -> Option<String> {
+    branch
+        .pointer("/commit/sha")
+        .and_then(JsonValue::as_str)
+        .map(str::to_string)
 }
 
 fn parse_tree(tree: &JsonValue) -> anyhow::Result<TreeListing> {
@@ -176,6 +199,24 @@ mod tests {
 
         assert_eq!(parse_default_branch(&metadata).expect("branch"), "main");
         assert!(parse_default_branch(&json!({})).is_err());
+    }
+
+    #[test]
+    fn parses_head_commit_sha_from_branch_response() {
+        let branch = json!({
+            "name": "main",
+            "commit": {
+                "sha": "abc123"
+            }
+        });
+
+        assert_eq!(parse_head_commit_sha(&branch).as_deref(), Some("abc123"));
+    }
+
+    #[test]
+    fn omits_head_commit_sha_when_branch_response_has_no_commit_sha() {
+        assert_eq!(parse_head_commit_sha(&json!({ "name": "main" })), None);
+        assert_eq!(parse_head_commit_sha(&json!({ "commit": {} })), None);
     }
 
     #[test]

@@ -1,6 +1,8 @@
 use anyhow::Context;
 
-use crate::analyzer::{HealthChecks, RepoAnalysis};
+use crate::analyzer::{
+    HealthChecks, RepoAnalysis, RepositorySourceMetadata, RepositorySourceProvider,
+};
 use crate::harness::{CheckStatus, HarnessName, HarnessReadinessReport};
 
 pub fn render_markdown(analysis: &RepoAnalysis) -> String {
@@ -8,6 +10,10 @@ pub fn render_markdown(analysis: &RepoAnalysis) -> String {
 
     output.push_str("# AgentReady Report\n\n");
     output.push_str(&format!("- Root: `{}`\n", analysis.root));
+    output.push_str(&format!(
+        "- Source: `{}`\n",
+        format_source(&analysis.source)
+    ));
     output.push_str(&format!("- Files scanned: `{}`\n", analysis.file_count));
 
     output.push_str("\n## Top-Level Directories\n\n");
@@ -72,6 +78,7 @@ pub fn render_harness_markdown(report: &HarnessReadinessReport) -> String {
 
     output.push_str("# AgentReady Harness Readiness\n\n");
     output.push_str(&format!("- Root: `{}`\n", report.root));
+    output.push_str(&format!("- Source: `{}`\n", format_source(&report.source)));
     output.push_str(&format!("- Score: `{}/100`\n", report.score));
     output.push_str(&format!(
         "- Checks: `{}` passed, `{}` warnings, `{}` failed\n",
@@ -140,6 +147,21 @@ fn format_doctor_line(label: &str, passed: bool) -> String {
     format!("[{status}] {label}\n")
 }
 
+fn format_source(source: &RepositorySourceMetadata) -> String {
+    match source.provider {
+        RepositorySourceProvider::Local => "local".to_string(),
+        RepositorySourceProvider::GitHub => {
+            let owner = source.owner.as_deref().unwrap_or("unknown");
+            let repo = source.repo.as_deref().unwrap_or("unknown");
+            let branch = source.default_branch.as_deref().unwrap_or("unknown");
+            match source.commit_sha.as_deref() {
+                Some(commit_sha) => format!("github:{owner}/{repo}@{branch} ({commit_sha})"),
+                None => format!("github:{owner}/{repo}@{branch}"),
+            }
+        }
+    }
+}
+
 fn status_marker(status: CheckStatus) -> &'static str {
     match status {
         CheckStatus::Pass => "[x]",
@@ -162,6 +184,7 @@ mod tests {
     fn renders_markdown_summary() {
         let analysis = RepoAnalysis {
             root: "/tmp/demo".to_string(),
+            source: RepositorySourceMetadata::local(),
             file_count: 2,
             top_level_directories: vec!["src".to_string()],
             detected_stacks: vec![DetectedStack {
@@ -180,6 +203,7 @@ mod tests {
         let markdown = render_markdown(&analysis);
 
         assert!(markdown.contains("# AgentReady Report"));
+        assert!(markdown.contains("- Source: `local`"));
         assert!(markdown.contains("## Top-Level Directories"));
         assert!(markdown.contains("- `src/`"));
         assert!(markdown.contains("**Rust**"));
@@ -194,6 +218,7 @@ mod tests {
         let markdown = render_harness_markdown(&report);
 
         assert!(markdown.contains("# AgentReady Harness Readiness"));
+        assert!(markdown.contains("- Source: `local`"));
         assert!(markdown.contains("Score: `75/100`"));
         assert!(markdown.contains("## Codex"));
         assert!(markdown.contains("[!] **Codex skills**"));
@@ -217,6 +242,7 @@ mod tests {
     fn sample_harness_report() -> HarnessReadinessReport {
         HarnessReadinessReport {
             root: "/tmp/demo".to_string(),
+            source: RepositorySourceMetadata::local(),
             score: 75,
             summary: crate::harness::HarnessSummary {
                 passed: 1,

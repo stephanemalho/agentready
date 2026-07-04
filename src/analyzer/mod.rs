@@ -8,6 +8,7 @@ use crate::detectors::detect_stacks;
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct RepoAnalysis {
     pub root: String,
+    pub source: RepositorySourceMetadata,
     pub file_count: usize,
     pub top_level_directories: Vec<String>,
     pub detected_stacks: Vec<DetectedStack>,
@@ -29,9 +30,58 @@ pub struct HealthChecks {
     pub tests: bool,
 }
 
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+pub struct RepositorySourceMetadata {
+    pub provider: RepositorySourceProvider,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub owner: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub repo: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default_branch: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub commit_sha: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
+pub enum RepositorySourceProvider {
+    #[serde(rename = "local")]
+    Local,
+    #[serde(rename = "github")]
+    GitHub,
+}
+
+impl RepositorySourceMetadata {
+    pub fn local() -> Self {
+        Self {
+            provider: RepositorySourceProvider::Local,
+            owner: None,
+            repo: None,
+            default_branch: None,
+            commit_sha: None,
+        }
+    }
+
+    pub fn github(
+        owner: &str,
+        repo: &str,
+        default_branch: &str,
+        commit_sha: Option<String>,
+    ) -> Self {
+        Self {
+            provider: RepositorySourceProvider::GitHub,
+            owner: Some(owner.to_string()),
+            repo: Some(repo.to_string()),
+            default_branch: Some(default_branch.to_string()),
+            commit_sha,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RepositorySnapshot {
     pub root: String,
+    pub source: RepositorySourceMetadata,
     pub files: Vec<String>,
     pub top_level_directories: Vec<String>,
     pub contents: BTreeMap<String, String>,
@@ -67,6 +117,7 @@ impl RepositorySnapshot {
 pub fn analyze_repository(snapshot: &RepositorySnapshot) -> RepoAnalysis {
     RepoAnalysis {
         root: snapshot.root.clone(),
+        source: snapshot.source.clone(),
         file_count: snapshot.files.len(),
         top_level_directories: snapshot.top_level_directories.clone(),
         detected_stacks: detect_stacks(&snapshot.files),
@@ -130,6 +181,7 @@ mod tests {
         let analysis = analyze_repository(&local_snapshot(temp.path()));
 
         assert_eq!(analysis.file_count, 3);
+        assert_eq!(analysis.source, RepositorySourceMetadata::local());
         assert!(analysis.health.readme);
         assert!(analysis.health.tests);
         assert!(
@@ -149,5 +201,21 @@ mod tests {
         let analysis = analyze_repository(&local_snapshot(temp.path()));
 
         assert!(analysis.health.license);
+    }
+
+    #[test]
+    fn builds_github_source_metadata() {
+        let source = RepositorySourceMetadata::github(
+            "stephanemalho",
+            "agentready",
+            "main",
+            Some("abc123".to_string()),
+        );
+
+        assert_eq!(source.provider, RepositorySourceProvider::GitHub);
+        assert_eq!(source.owner.as_deref(), Some("stephanemalho"));
+        assert_eq!(source.repo.as_deref(), Some("agentready"));
+        assert_eq!(source.default_branch.as_deref(), Some("main"));
+        assert_eq!(source.commit_sha.as_deref(), Some("abc123"));
     }
 }

@@ -65,6 +65,8 @@ fn scan_outputs_json_report() {
     command
         .assert()
         .success()
+        .stdout(predicate::str::contains("\"source\""))
+        .stdout(predicate::str::contains("\"provider\": \"local\""))
         .stdout(predicate::str::contains("\"file_count\""))
         .stdout(predicate::str::contains("\"Rust\""));
 }
@@ -114,6 +116,8 @@ fn harness_outputs_json_report() {
     command
         .assert()
         .success()
+        .stdout(predicate::str::contains("\"source\""))
+        .stdout(predicate::str::contains("\"provider\": \"local\""))
         .stdout(predicate::str::contains("\"score\""))
         .stdout(predicate::str::contains("\"harness\""))
         .stdout(predicate::str::contains("\"codex\""));

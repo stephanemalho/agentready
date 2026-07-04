@@ -1,7 +1,7 @@
 use serde::Serialize;
 use serde_json::Value as JsonValue;
 
-use crate::analyzer::RepositorySnapshot;
+use crate::analyzer::{RepositorySnapshot, RepositorySourceMetadata};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum HarnessFilter {
@@ -14,6 +14,7 @@ pub enum HarnessFilter {
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct HarnessReadinessReport {
     pub root: String,
+    pub source: RepositorySourceMetadata,
     pub score: u8,
     pub summary: HarnessSummary,
     pub checks: Vec<HarnessCheck>,
@@ -311,6 +312,7 @@ pub fn analyze_harness_readiness(
 
     HarnessReadinessReport {
         root: snapshot.root.clone(),
+        source: snapshot.source.clone(),
         score,
         summary,
         checks,
@@ -820,6 +822,7 @@ mod tests {
 
         let report = analyze_harness_readiness(&snapshot_of(repo.path()), HarnessFilter::All);
 
+        assert_eq!(report.source, RepositorySourceMetadata::local());
         assert_eq!(report.summary.failed, 0);
         assert!(report.score >= 90);
         assert!(
