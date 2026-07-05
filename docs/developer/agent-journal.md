@@ -14,6 +14,43 @@ Allowed `agent` values:
 - `gemini-cli`
 - `local-agent`
 
+## 2026-07-05 - codex - landing refresh in progress
+
+- agent: `codex`
+- branch: `agent/codex/bootstrap/repolens-cli`
+- PR: not opened yet
+- status: local staged work, pending maintainer commit/push
+- base commit before this landing work: `b0cd276`
+
+Commits:
+
+- pending - proposed headline: `feat(web): refresh landing page from Figma mockup`
+
+Read:
+
+```bash
+git show --stat b0cd276
+git diff --cached --stat
+git diff --cached -- web/app/page.tsx web/app/layout.tsx web/app/globals.css web/lib/landing.ts web/components/landing
+```
+
+Notes:
+
+- Rebuilt the home page as composed Next.js App Router sections instead of a
+  single pasted JSX block.
+- Added landing domain components under `web/components/landing/`, centralized
+  landing content in `web/lib/landing.ts`, and kept styling token-driven through
+  `web/app/globals.css`.
+- Implemented the hero, metrics, features, multi-harness/report preview, install
+  callout, header anchors, and the new SVG app icon/favicon.
+- Removed the old `web/app/favicon.ico`; `web/app/icon.svg` is now the favicon
+  declared in `web/app/layout.tsx`.
+- Figma Make direct source extraction was limited by the connector, so final
+  implementation used the user's screenshots plus pasted multi-harness excerpt.
+- Validated with `scripts/agent-preflight.sh`, `cd web && npm run lint`,
+  `cd web && npx tsc --noEmit`, `cd web && npm run test`, `cd web && npm run build`,
+  and `git diff --check`.
+
 ## 2026-07-05 - codex - PR #12
 
 - agent: `codex`

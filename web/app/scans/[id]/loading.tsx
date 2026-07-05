@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ScanLoading() {
   return (
-    <div className="space-y-8">
+    <div className="mx-auto w-full max-w-6xl space-y-8 px-5 py-10">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <Skeleton className="h-8 w-64" />

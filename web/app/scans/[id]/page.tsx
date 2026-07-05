@@ -31,7 +31,7 @@ export default async function ScanPage({ params }: ScanPageProps) {
   const harnesses = harnessScores.map((entry) => entry.harness);
 
   return (
-    <article className="space-y-8">
+    <article className="mx-auto w-full max-w-6xl space-y-8 px-5 py-10">
       <header className="flex flex-wrap items-center justify-between gap-6">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold">
