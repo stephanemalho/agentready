@@ -9,6 +9,7 @@ Next.js 16 (App Router, Turbopack, React 19 + React Compiler), TypeScript strict
 ```txt
 web/
   app/                 # routes ONLY: pages, layouts, loading/error boundaries, server actions
+  app/api/health/      # BFF health proxy (the browser never calls the Rust API)
   components/ui/       # shadcn/ui primitives (generated, Base UI based; customize via tokens)
   components/          # domain components (pure, typed props, no data fetching)
   components/landing/  # landing page sections (server components; content from lib/landing.ts)
@@ -42,6 +43,14 @@ Browser -> Next.js server (RSC / Server Action) -> Rust API (Render) -> GitHub/P
 - The browser NEVER calls the Rust API directly. `API_URL` is a server-only env var (no `NEXT_PUBLIC_` prefix).
 - All responses are validated with Zod at the boundary (`lib/contract.ts`) before use.
 - Scan submission is a Server Action that calls `POST /api/scans` then redirects to `/scans/{id}`.
+
+## Backend Wake-On-Visit
+
+The Rust API sleeps on the Render free tier; there is deliberately NO 24/7 keep-alive cron. Instead the client wakes it on demand:
+
+- `app/api/health/route.ts` proxies `GET /health` server-side (BFF preserved) — every call also wakes the Render service.
+- `components/BackendStatusProvider.tsx` (client context in the root layout) polls that route: fast (5 s) while the backend wakes, ~90 s of failures → `offline`, then a 10-minute heartbeat while the tab is **visible** only (`visibilitychange`), so an abandoned tab lets the backend sleep again.
+- Consumers: `BackendStatusDot` (header, next to the version badge: checking / waking / online / offline) and `ScanForm` (input disabled with an explanation while the engine is waking or unreachable).
 
 ## Deployment Shape (Lot D)
 
