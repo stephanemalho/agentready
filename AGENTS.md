@@ -119,16 +119,18 @@ scripts/validate-agent-template.sh
 scripts/agent-preflight.sh
 
 # Project-specific checks
-cargo fmt --check
-cargo clippy -- -D warnings
-cargo test
-cargo build --release
+cargo fmt --all --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+cargo build --release --workspace
 ```
 
 If a command is unavailable, report why. Do not claim validation passed without exact command output.
 
 ## Rust Implementation Rules
 
+- The repository is a Cargo workspace: the `agentready` CLI/engine crate lives at the root, the SaaS HTTP API lives in `server/` (`agentready-server`, not published).
+- `server/` may use async and networking, but must reuse the `agentready` engine crate instead of duplicating analysis logic.
 - Keep `src/main.rs` as a thin entrypoint.
 - Put CLI parsing in `src/cli.rs`.
 - Put repository acquisition (target parsing, local walk, GitHub API) in `src/source/`; it is the only module allowed to do I/O.

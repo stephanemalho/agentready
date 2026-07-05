@@ -21,6 +21,20 @@ Then verify:
 scripts/agent-preflight.sh
 ```
 
+## After A PR Merge
+
+Pull requests are merged into `main` with merge commits (squash and rebase merging are disabled on the repository, and `main` must not require linear history). After each merge, realign the assigned branch:
+
+```bash
+git fetch origin
+git rebase origin/main
+git push --force-with-lease
+```
+
+Warnings like `skipped previously applied commit` during the rebase are normal: git drops commits whose changes already landed in `main`.
+
+Never run `git pull` and never click the GitHub "Update branch" button on an assigned branch after a rebase: both merge the old remote history back and reintroduce duplicated commits.
+
 ## Conflict Handling
 
 If rebase or merge conflicts occur:

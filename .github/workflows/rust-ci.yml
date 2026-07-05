@@ -35,10 +35,10 @@ jobs:
             ${{ runner.os }}-cargo-
 
       - name: Check formatting
-        run: cargo fmt --check
+        run: cargo fmt --all --check
 
       - name: Lint
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --workspace --all-targets -- -D warnings
 
       - name: Security audit
         run: |
@@ -46,7 +46,7 @@ jobs:
           cargo audit
 
       - name: Test
-        run: cargo test
+        run: cargo test --workspace
 
       - name: Code coverage
         run: |
@@ -54,7 +54,7 @@ jobs:
           cargo tarpaulin --verbose --workspace --all-targets --out Xml
 
       - name: Build release
-        run: cargo build --release
+        run: cargo build --release --workspace
 
       - name: Dogfooding (run analysis on self)
-        run: cargo run --release -- harness .
+        run: cargo run --release -p agentready -- harness .

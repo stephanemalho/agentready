@@ -17,6 +17,7 @@ CLI -> Source (local filesystem / GitHub API) -> Analyzer -> Detectors / Harness
 - `src/report/` owns Markdown, JSON, and doctor output formatting.
 - The engine (analyzer, detectors, harness, report) must stay pure: no filesystem or network I/O, so it remains WASM-compilable and reusable by the SaaS.
 - Network access is triggered only by explicit `github:` or GitHub URL targets. Local scans must never touch the network.
+- `server/` (`agentready-server`) is the SaaS HTTP API: an axum service that wraps the engine crate. It only accepts GitHub targets (never local paths), and blocking engine calls run in `spawn_blocking`.
 - No AI SDK anywhere.
 
 ## File Routing
@@ -31,6 +32,7 @@ CLI -> Source (local filesystem / GitHub API) -> Analyzer -> Detectors / Harness
 | Report rendering | `src/report/` |
 | Binary entrypoint | `src/main.rs` |
 | Integration CLI tests | `tests/` |
+| SaaS HTTP API (axum) | `server/` |
 
 ## Refactor Rules
 
