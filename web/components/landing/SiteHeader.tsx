@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 
 import { LandingIcon } from "@/components/landing/LandingIcon";
+import { ThemeMenu } from "@/components/ThemeMenu";
 import { landingNavItems } from "@/lib/landing";
 
 export function SiteHeader() {
@@ -33,15 +34,18 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <Link
-          href="https://github.com/stephanemalho/agentready"
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex h-9 items-center gap-2 rounded-lg border bg-card px-4 text-sm font-medium text-card-foreground transition-colors hover:bg-muted"
-        >
-          <Star aria-hidden="true" className="size-4 text-primary" />
-          <span className="hidden sm:inline">Star on GitHub</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <ThemeMenu />
+          <Link
+            href="https://github.com/stephanemalho/agentready"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-9 items-center gap-2 rounded-lg border bg-card px-4 text-sm font-medium text-card-foreground transition-colors hover:bg-muted"
+          >
+            <Star aria-hidden="true" className="size-4 text-primary" />
+            <span className="hidden sm:inline">Star on GitHub</span>
+          </Link>
+        </div>
       </div>
     </header>
   );

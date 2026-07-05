@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { SiteHeader } from "@/components/landing/SiteHeader";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,11 +33,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">
-        <SiteHeader />
-        <main className="w-full flex-1">{children}</main>
+        <ThemeProvider>
+          <SiteHeader />
+          <main className="w-full flex-1">{children}</main>
+        </ThemeProvider>
       </body>
     </html>
   );

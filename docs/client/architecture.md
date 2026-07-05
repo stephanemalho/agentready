@@ -9,15 +9,19 @@ Next.js 16 (App Router, Turbopack, React 19 + React Compiler), TypeScript strict
 ```txt
 web/
   app/                 # routes ONLY: pages, layouts, loading/error boundaries, server actions
-  components/ui/       # shadcn/ui primitives (generated; customize via tokens, not forks)
+  components/ui/       # shadcn/ui primitives (generated, Base UI based; customize via tokens)
   components/          # domain components (pure, typed props, no data fetching)
+  components/landing/  # landing page sections (server components; content from lib/landing.ts)
   lib/
     api.ts             # THE single API client (server-only fetch to the Rust API)
     contract.ts        # TS types + Zod schemas of the engine JSON contract
     score.ts           # pure scoring helpers (per-harness score)
+    landing.ts         # landing page content (uses the contract vocabulary)
     env.ts             # validated environment access (API_URL)
-  app/globals.css      # design tokens (see style.md)
+  app/globals.css      # design tokens, light + dark (see style.md)
 ```
+
+Shared enum→label/class mappings live in `web/components/display.ts`; landing and report components consume it — no local status/severity/harness maps.
 
 - `app/` files stay thin: compose components and call `lib/`. No business logic in routes.
 - Domain components receive data via props and never fetch. Fetching happens in Server Components (pages) or Server Actions, always through `lib/api.ts`.

@@ -2,9 +2,15 @@
 
 ## Single Source Of Style
 
-All design tokens live in ONE place: the `@theme` block of `web/app/globals.css` (Tailwind CSS v4 CSS-first configuration). Colors, radii, spacing, and typography are defined there as CSS variables and nowhere else.
+All design tokens live in ONE place: `web/app/globals.css` (Tailwind CSS v4 CSS-first configuration) — the `@theme inline` mapping plus the `:root` (light) and `.dark` (dark) value blocks. Colors, radii, spacing, and typography are defined there as CSS variables and nowhere else.
 
-Rebranding the product = editing that single block.
+Rebranding the product = editing that single file.
+
+## Theming
+
+- Three modes: **light / dark / system**, switched by `next-themes` (class strategy on `<html>`, provider in `web/components/ThemeProvider.tsx`, selector in the header: `web/components/ThemeMenu.tsx`).
+- Every token must be defined in BOTH `:root` and `.dark`, including the landing tokens (`--agent-grid-*`, `--agent-signal-*`, `--harness-*`) and the semantic status/severity tokens. A token with a single value is a bug waiting for the other theme.
+- Never hardcode `dark:` styles to fake a theme; the token layer does the switching.
 
 ## Rules
 
@@ -16,6 +22,6 @@ Rebranding the product = editing that single block.
 
 ## Component Conventions
 
-- shadcn/ui primitives live in `web/components/ui/` as generated; treat them as the project's component library.
+- shadcn/ui primitives live in `web/components/ui/` as generated; treat them as the project's component library. Since shadcn 4.13 they are built on **Base UI** (`@base-ui/react`) — not Radix — and compose via the `render` prop instead of `asChild`. The `shadcn` package stays in dependencies because `globals.css` imports `shadcn/tailwind.css`.
 - Domain components compose primitives; they never re-implement buttons, cards, badges, or tables.
 - Class merging goes through the `cn()` helper (`clsx` + `tailwind-merge`) — never manual string concatenation.

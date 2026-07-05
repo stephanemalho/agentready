@@ -37,11 +37,15 @@ export interface InstallCommand {
   command: string;
 }
 
+import type { CheckStatus, Severity } from "@/lib/contract";
+
+// Demo content reuses the real contract vocabulary (rule ids, severities)
+// so the landing page showcases exactly what the product outputs.
 export interface DemoCheck {
   id: string;
   label: string;
-  status: "pass" | "warn" | "fail";
-  severity: "critical" | "high" | "medium";
+  status: CheckStatus;
+  severity: Severity;
 }
 
 export const landingNavItems: LandingNavItem[] = [
@@ -53,7 +57,7 @@ export const landingNavItems: LandingNavItem[] = [
 export const supportedHarnesses = ["Claude Code", "Codex", "Gemini CLI"];
 
 export const landingMetrics: LandingMetric[] = [
-  { icon: "check", value: "24", label: "Harness checks" },
+  { icon: "check", value: "21", label: "Harness checks" },
   { icon: "chip", value: "3", label: "AI agents supported" },
   { icon: "lock", value: "100%", label: "Offline, no API calls" },
   { icon: "zap", value: "~50ms", label: "Scan time" },
@@ -106,40 +110,40 @@ export const harnessProfiles: HarnessProfile[] = [
 
 export const demoChecks: DemoCheck[] = [
   {
-    id: "AGENT-001",
+    id: "shared.agents_md.exists",
     label: "AGENTS.md present",
-    status: "pass",
-    severity: "critical",
-  },
-  {
-    id: "AGENT-002",
-    label: "CLAUDE.md configured",
     status: "pass",
     severity: "high",
   },
   {
-    id: "AGENT-003",
+    id: "claude.adapter.imports_agents_md",
+    label: "CLAUDE.md imports AGENTS.md",
+    status: "pass",
+    severity: "medium",
+  },
+  {
+    id: "gemini.adapter.exists",
     label: "GEMINI.md not found",
     status: "fail",
     severity: "high",
   },
   {
-    id: "AGENT-004",
-    label: "CI workflow detected",
+    id: "shared.ci.agent_control",
+    label: "CI branch policy detected",
     status: "pass",
     severity: "medium",
   },
   {
-    id: "AGENT-005",
-    label: "Shared rules file",
+    id: "shared.skills.present",
+    label: "Shared workflows folder",
     status: "warn",
-    severity: "medium",
+    severity: "low",
   },
   {
-    id: "AGENT-006",
-    label: "Harness config valid",
+    id: "codex.config.valid_toml",
+    label: "Codex config valid",
     status: "pass",
-    severity: "critical",
+    severity: "high",
   },
 ];
 
