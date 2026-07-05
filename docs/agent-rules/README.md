@@ -20,6 +20,10 @@ Start with the template files:
 
 For a real project, either rename the `.template.md` files or keep them and add project-specific files beside them.
 
+Project-specific shared rules:
+
+- `agent-handoff.md` defines how agents use `docs/developer/agent-journal.md` to hand off work through PR and commit SHA pointers.
+
 ## Rule quality bar
 
 Good rules are:

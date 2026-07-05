@@ -45,6 +45,28 @@ If behind main:
 scripts/agent-sync-main.sh
 ```
 
+## Handoff Journal
+
+After preflight and before planning follow-up work, agents must read:
+
+```txt
+docs/developer/agent-journal.md
+```
+
+The journal is a short index into Git history. Entries must use one of these
+agent identities:
+
+```txt
+codex
+claude-code
+gemini-cli
+local-agent
+```
+
+Future agents should inspect the referenced commits with `git show` / `git log`
+when those commits affect the task. The journal must not duplicate full diffs or
+own canonical project rules; those stay in `docs/agent-rules/`.
+
 ## Human Gate
 
 Only the human maintainer merges into `main`.
@@ -56,4 +78,3 @@ CI verifies:
 - required files exist
 - no local settings or obvious secrets are committed
 - project-specific checks if configured
-

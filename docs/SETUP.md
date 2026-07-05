@@ -65,6 +65,15 @@ Then:
 scripts/agent-preflight.sh
 ```
 
+Then read:
+
+```txt
+docs/developer/agent-journal.md
+```
+
+Inspect any relevant PR or commit SHA from the journal with `git show` before
+continuing related work.
+
 ## Human Merge Checklist
 
 Before merging an agent PR:
@@ -77,4 +86,3 @@ Before merging an agent PR:
 6. Merge only when satisfied.
 
 Agents do not merge to `main`.
-

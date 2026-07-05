@@ -10,7 +10,7 @@ interface ErrorPageProps {
 
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
   return (
-    <div className="flex flex-col items-start gap-4 py-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-4 px-5 py-10">
       <Alert variant="destructive">
         <AlertTitle>Something went wrong</AlertTitle>
         <AlertDescription>

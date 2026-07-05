@@ -10,8 +10,10 @@ required_files=(
   ".claude/rules/README.md"
   ".gemini/settings.json"
   "docs/agent-rules/README.md"
+  "docs/agent-rules/agent-handoff.md"
   "docs/agent-rules/git-workflow.md"
   "docs/agent-rules/verification.md"
+  "docs/developer/agent-journal.md"
   "docs/skills/do_work.md"
   "docs/skills/sync_with_main.md"
   "docs/harness/codex.md"
@@ -53,4 +55,3 @@ python3 -m json.tool .claude/settings.json >/dev/null
 python3 -m json.tool .gemini/settings.json >/dev/null
 
 echo "template validation passed"
-

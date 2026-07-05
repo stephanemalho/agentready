@@ -36,13 +36,18 @@ The CLI must stay deterministic and local-first:
 Use this order when gathering project instructions:
 
 1. `AGENTS.md`
-2. `docs/ROADMAP.md` for product direction, milestones, SaaS plans, and future GitHub integration
-3. `docs/agent-rules/README.md`
-4. The task-specific files in `docs/agent-rules/`
-5. The task-specific workflow in `docs/skills/`
-6. Harness-specific adapter docs only when working on that harness
+2. `docs/developer/agent-journal.md` for recent handoff context, commit SHAs, and PR pointers
+3. `docs/ROADMAP.md` for product direction, milestones, SaaS plans, and future GitHub integration
+4. `docs/agent-rules/README.md`
+5. The task-specific files in `docs/agent-rules/`
+6. The task-specific workflow in `docs/skills/`
+7. Harness-specific adapter docs only when working on that harness
 
 Do not put canonical business rules only in `.codex/`, `.claude/`, `.gemini/`, or another harness folder.
+
+## Shared Agent Journal
+
+After preflight and before planning follow-up work, read `docs/developer/agent-journal.md` for recent merged work and handoff notes. Journal entries identify the actor as `codex`, `claude-code`, `gemini-cli`, or `local-agent` and point to PRs and commit SHAs. Use those SHAs with `git show` / `git log`; do not treat the journal as a replacement for Git history.
 
 ## Agent Operating Modes
 
@@ -108,6 +113,7 @@ The agent must repeat the preflight before opening a pull request or reporting c
 | Security or secret handling | `docs/agent-rules/security.template.md`, `docs/agent-rules/verification.md` |
 | CI or workflow change | `docs/agent-rules/git-workflow.md`, `.github/workflows/`, `scripts/` |
 | Harness configuration change | `docs/harness/<harness>.md`, official harness docs |
+| Agent handoff or journal update | `docs/agent-rules/agent-handoff.md`, `docs/developer/agent-journal.md` |
 | Roadmap update | `docs/ROADMAP.md`, `docs/skills/update_agent_rules.md` |
 | Rule or documentation update | `docs/skills/update_agent_rules.md`, `docs/agent-rules/README.md` |
 | Completion/reporting | `docs/skills/do_work.md` |
