@@ -56,6 +56,10 @@ Run applicable checks and capture exact results.
 
 ## 6. Report
 
+For substantial handoffs, merged PR follow-ups, or non-obvious CI/local-dev
+diagnoses, add or update `docs/developer/agent-journal.md` following
+`docs/agent-rules/agent-handoff.md`.
+
 Report:
 
 - changed files

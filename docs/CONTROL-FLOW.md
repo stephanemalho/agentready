@@ -9,8 +9,11 @@ This repository uses layered control.
 - `GEMINI.md`
 - `docs/agent-rules/`
 - `docs/skills/`
+- `docs/developer/agent-journal.md`
 
 This layer shapes agent behavior.
+The journal points agents to recent PRs and commit SHAs; it does not replace
+Git history or canonical rules.
 
 ## Layer 2: Local Scripts
 
@@ -39,4 +42,3 @@ This layer prevents accidental direct integration into `main`.
 The human maintainer remains the merge authority.
 
 Agents propose. The human compares, validates, and merges.
-
