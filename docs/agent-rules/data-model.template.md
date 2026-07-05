@@ -4,16 +4,25 @@
 
 | Entity | Owner | Source of truth |
 |---|---|---|
-| `RepoAnalysis` | AgentReady analyzer | Local repository files |
+| `RepoAnalysis` | AgentReady analyzer | Repository files (local or GitHub) |
 | `DetectedStack` | AgentReady detectors | File marker evidence |
-| `HealthChecks` | AgentReady analyzer | Local repository files |
+| `HealthChecks` | AgentReady analyzer | Repository files (local or GitHub) |
 | Markdown report | AgentReady report renderer | `RepoAnalysis` |
 | JSON report | AgentReady report renderer | `RepoAnalysis` |
+| `repositories` table | `server/` (SaaS) | GitHub source metadata |
+| `scans` table | `server/` (SaaS) | Engine reports (score, summary, full JSON) |
+| `findings` table | `server/` (SaaS) | Harness checks of a scan |
+
+## Database (SaaS Only)
+
+- The CLI has no database. Only `server/` uses Postgres, and it stays fully functional without `DATABASE_URL` (stateless mode: scans work, history endpoints answer 503).
+- Schema and migrations live in `server/migrations/` and run automatically at startup via sqlx.
+- Tables: `repositories` (unique per provider/owner/name), `scans` (per-scan score, summary, commit SHA, full report as JSONB), `findings` (one row per harness check, for future per-rule queries).
 
 ## Migration Rules
 
-- AgentReady V1 has no database and no migrations.
-- If persistent configuration is added later, document the file format and backward compatibility rules before implementation.
+- Migrations are append-only SQL files in `server/migrations/`; never edit an applied migration, add a new one.
+- Keep schema changes additive and backward compatible whenever possible.
 
 ## API/Data Contracts
 

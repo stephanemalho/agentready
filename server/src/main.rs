@@ -7,13 +7,15 @@ async fn main() -> anyhow::Result<()> {
         .parse()
         .context("PORT must be a valid port number")?;
 
+    let state = agentready_server::state_from_env().await?;
+
     let listener = tokio::net::TcpListener::bind(("0.0.0.0", port))
         .await
         .with_context(|| format!("failed to bind port {port}"))?;
 
     println!("agentready-server listening on 0.0.0.0:{port}");
 
-    axum::serve(listener, agentready_server::app())
+    axum::serve(listener, agentready_server::app(state))
         .await
         .context("server stopped unexpectedly")
 }

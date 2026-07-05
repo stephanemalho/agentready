@@ -109,9 +109,17 @@ cargo run -p agentready-server
 curl -s -X POST localhost:8080/api/scans \
   -H 'Content-Type: application/json' \
   -d '{"target": "github:owner/repo"}'
+
+# Scan history (requires DATABASE_URL)
+curl -s localhost:8080/api/repositories/owner/repo/scans
+curl -s localhost:8080/api/scans/1
 ```
 
 The API only accepts GitHub targets; local paths are rejected.
+
+Set `DATABASE_URL` (Postgres) to enable scan history: scans are then stored
+with their commit SHA, score, and findings. Without it the server runs
+stateless and history endpoints answer 503.
 
 ## Agent Workflow
 

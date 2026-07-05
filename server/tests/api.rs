@@ -3,7 +3,7 @@ use axum::http::{Request, StatusCode, header};
 use http_body_util::BodyExt;
 use tower::ServiceExt;
 
-use agentready_server::app;
+use agentready_server::{AppState, app};
 
 async fn body_text(response: axum::response::Response) -> String {
     let bytes = response
@@ -24,7 +24,7 @@ fn scan_request(json: &str) -> Request<Body> {
 
 #[tokio::test]
 async fn health_returns_ok() {
-    let response = app()
+    let response = app(AppState::default())
         .oneshot(
             Request::get("/health")
                 .body(Body::empty())
@@ -39,7 +39,7 @@ async fn health_returns_ok() {
 
 #[tokio::test]
 async fn scan_rejects_local_targets() {
-    let response = app()
+    let response = app(AppState::default())
         .oneshot(scan_request(r#"{"target": "."}"#))
         .await
         .expect("response");
@@ -50,7 +50,7 @@ async fn scan_rejects_local_targets() {
 
 #[tokio::test]
 async fn scan_rejects_malformed_github_targets() {
-    let response = app()
+    let response = app(AppState::default())
         .oneshot(scan_request(r#"{"target": "github:owner-without-repo"}"#))
         .await
         .expect("response");
@@ -65,7 +65,7 @@ async fn scan_rejects_malformed_github_targets() {
 
 #[tokio::test]
 async fn scan_rejects_invalid_json_bodies() {
-    let response = app()
+    let response = app(AppState::default())
         .oneshot(scan_request(r#"{"nope": true}"#))
         .await
         .expect("response");
@@ -76,7 +76,7 @@ async fn scan_rejects_invalid_json_bodies() {
 #[tokio::test]
 #[ignore = "requires network access; run manually with cargo test -p agentready-server -- --ignored"]
 async fn scan_returns_readiness_report_live() {
-    let response = app()
+    let response = app(AppState::default())
         .oneshot(scan_request(
             r#"{"target": "github:stephanemalho/agentready"}"#,
         ))
