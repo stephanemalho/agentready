@@ -59,7 +59,9 @@ jobs:
 
       - name: Security audit
         run: |
-          cargo install cargo-audit
+          if ! command -v cargo-audit >/dev/null 2>&1; then
+            cargo install cargo-audit
+          fi
           cargo audit
 
       - name: Test
@@ -67,7 +69,9 @@ jobs:
 
       - name: Code coverage
         run: |
-          cargo install cargo-tarpaulin
+          if ! command -v cargo-tarpaulin >/dev/null 2>&1; then
+            cargo install cargo-tarpaulin
+          fi
           cargo tarpaulin --verbose --workspace --all-targets --out Xml
 
       - name: Build release

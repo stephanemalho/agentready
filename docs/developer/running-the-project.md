@@ -47,6 +47,10 @@ API_URL=http://localhost:8080 npm run dev
 
 Open `http://localhost:3000`, paste `github:owner/repo`, scan. `API_URL` is server-only and required.
 
+If the UI says the scan service is not configured, stop the running `next dev`
+process and restart it with the `API_URL=...` prefix above. Next.js reads that
+environment variable at startup.
+
 ### 4. End of day
 
 ```bash
