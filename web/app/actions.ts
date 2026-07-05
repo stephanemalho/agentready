@@ -3,6 +3,10 @@
 import { redirect } from "next/navigation";
 
 import { ApiError, createScan } from "@/lib/api";
+import {
+  scanConfigurationErrorMessage,
+  scanServiceUnreachableMessage,
+} from "@/lib/scan-errors";
 
 export interface ScanFormState {
   error?: string;
@@ -31,7 +35,10 @@ export async function scanRepository(
     if (error instanceof ApiError) {
       return { error: error.message };
     }
-    return { error: "The scan service is unreachable. Try again shortly." };
+    return {
+      error:
+        scanConfigurationErrorMessage(error) ?? scanServiceUnreachableMessage,
+    };
   }
 
   if (scanId === undefined) {
