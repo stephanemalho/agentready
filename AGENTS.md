@@ -104,6 +104,7 @@ The agent must repeat the preflight before opening a pull request or reporting c
 | Business rule change | `docs/agent-rules/business-rules.template.md`, `docs/templates/project-profile.template.md` |
 | Data model or schema change | `docs/agent-rules/data-model.template.md`, `docs/skills/implement_feature.md` |
 | SaaS, GitHub API, or hosted scan work | `docs/ROADMAP.md`, `docs/agent-rules/architecture.template.md`, `docs/agent-rules/security.template.md` |
+| Front-end / web work (`web/`) | `docs/client/README.md`, then the relevant theme files in `docs/client/` |
 | Security or secret handling | `docs/agent-rules/security.template.md`, `docs/agent-rules/verification.md` |
 | CI or workflow change | `docs/agent-rules/git-workflow.md`, `.github/workflows/`, `scripts/` |
 | Harness configuration change | `docs/harness/<harness>.md`, official harness docs |
@@ -119,16 +120,21 @@ scripts/validate-agent-template.sh
 scripts/agent-preflight.sh
 
 # Project-specific checks
-cargo fmt --check
-cargo clippy -- -D warnings
-cargo test
-cargo build --release
+cargo fmt --all --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+cargo build --release --workspace
+
+# Web client checks (when web/ is touched)
+cd web && npm run lint && npx tsc --noEmit && npm run test && npm run build
 ```
 
 If a command is unavailable, report why. Do not claim validation passed without exact command output.
 
 ## Rust Implementation Rules
 
+- The repository is a Cargo workspace: the `agentready` CLI/engine crate lives at the root, the SaaS HTTP API lives in `server/` (`agentready-server`, not published).
+- `server/` may use async and networking, but must reuse the `agentready` engine crate instead of duplicating analysis logic.
 - Keep `src/main.rs` as a thin entrypoint.
 - Put CLI parsing in `src/cli.rs`.
 - Put repository acquisition (target parsing, local walk, GitHub API) in `src/source/`; it is the only module allowed to do I/O.
@@ -140,6 +146,16 @@ If a command is unavailable, report why. Do not claim validation passed without 
 - Use integration tests for command behavior in `tests/`.
 - Do not add a dependency when the standard library is enough.
 - Explain every new runtime dependency in the PR summary.
+
+## Web Implementation Rules
+
+Canonical web rules live in `docs/client/` — read `docs/client/README.md` first.
+
+- The Next.js SaaS front-end lives in `web/` (TypeScript strict, App Router).
+- Routes in `web/app/` compose only; domain components in `web/components/`; logic, API access, and contract types in `web/lib/`.
+- The browser never calls the Rust API directly (BFF pattern; `API_URL` is server-only).
+- All styling goes through the design tokens in `web/app/globals.css`.
+- Explain every new npm dependency in the PR summary.
 
 ## Harness Adapters
 

@@ -27,8 +27,8 @@ cargo build --release
 
 - Fixture location: inline temp directories for simple CLI tests; `tests/fixtures/` may be added when fixtures become reusable.
 - Mocking policy: prefer real temporary directories and real files over mocks.
-- Network policy: tests must not require network access.
-- Database policy: no database in V1.
+- Network policy: tests must not require network access; live tests exist but are `#[ignore]`d and run manually.
+- Database policy: the CLI has no database. Server database tests are guarded by `TEST_DATABASE_URL` and skip silently when it is unset; CI provides a Postgres service. Locally, use a disposable container: `docker run -d --name agentready-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=agentready_test -p 5432:5432 postgres:16`.
 
 ## Reporting
 

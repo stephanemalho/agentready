@@ -14,6 +14,23 @@ jobs:
     name: Format, lint, test, and build
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: agentready_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/agentready_test
+
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -35,10 +52,10 @@ jobs:
             ${{ runner.os }}-cargo-
 
       - name: Check formatting
-        run: cargo fmt --check
+        run: cargo fmt --all --check
 
       - name: Lint
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --workspace --all-targets -- -D warnings
 
       - name: Security audit
         run: |
@@ -46,7 +63,7 @@ jobs:
           cargo audit
 
       - name: Test
-        run: cargo test
+        run: cargo test --workspace
 
       - name: Code coverage
         run: |
@@ -54,7 +71,7 @@ jobs:
           cargo tarpaulin --verbose --workspace --all-targets --out Xml
 
       - name: Build release
-        run: cargo build --release
+        run: cargo build --release --workspace
 
       - name: Dogfooding (run analysis on self)
-        run: cargo run --release -- harness .
+        run: cargo run --release -p agentready -- harness .

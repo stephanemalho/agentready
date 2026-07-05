@@ -1,0 +1,9 @@
+target/
+web/
+.git/
+.claude/
+.codex/
+.gemini/
+.agents/
+docs/
+*.md

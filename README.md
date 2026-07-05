@@ -88,14 +88,38 @@ The readiness report validates project files and configuration only. AgentReady 
 ## Development
 
 ```bash
-cargo fmt --check
-cargo clippy -- -D warnings
-cargo test
-cargo build --release
+cargo fmt --all --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+cargo build --release --workspace
 
 # The CI also runs security audits (cargo-audit), code coverage (cargo-tarpaulin),
 # and dogfoods the harness command on the repository itself.
 ```
+
+## SaaS API Server
+
+The `server/` crate exposes the same readiness engine over HTTP for the hosted version (see `docs/ROADMAP.md`, Phase 4):
+
+```bash
+# Run locally (defaults to port 8080)
+cargo run -p agentready-server
+
+# Scan a public GitHub repository
+curl -s -X POST localhost:8080/api/scans \
+  -H 'Content-Type: application/json' \
+  -d '{"target": "github:owner/repo"}'
+
+# Scan history (requires DATABASE_URL)
+curl -s localhost:8080/api/repositories/owner/repo/scans
+curl -s localhost:8080/api/scans/1
+```
+
+The API only accepts GitHub targets; local paths are rejected.
+
+Set `DATABASE_URL` (Postgres) to enable scan history: scans are then stored
+with their commit SHA, score, and findings. Without it the server runs
+stateless and history endpoints answer 503.
 
 ## Agent Workflow
 
