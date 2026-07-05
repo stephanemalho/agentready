@@ -40,16 +40,25 @@ Listens on `http://localhost:8080` (override with `PORT`). Sanity check: `curl l
 
 ### 3. Start the frontend
 
+One-time setup: create `web/.env.local` (git-ignored) so `API_URL` is always set:
+
+```bash
+echo "API_URL=http://localhost:8080" > web/.env.local
+```
+
+Then the daily command is just:
+
 ```bash
 cd web
-API_URL=http://localhost:8080 npm run dev
+npm run dev
 ```
 
 Open `http://localhost:3000`, paste `github:owner/repo`, scan. `API_URL` is server-only and required.
 
-If the UI says the scan service is not configured, stop the running `next dev`
-process and restart it with the `API_URL=...` prefix above. Next.js reads that
-environment variable at startup.
+If the UI says the scan service is not configured, `next dev` was started
+without `API_URL` (missing `.env.local`). Create the file above, then stop the
+dev server (Ctrl+C) and run `npm run dev` again — Next.js reads environment
+variables only at startup.
 
 ### 4. End of day
 
