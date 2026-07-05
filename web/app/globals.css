@@ -61,58 +61,59 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root {
-  --status-pass: oklch(0.72 0.14 166);
-  --status-warn: oklch(0.78 0.13 82);
-  --status-fail: oklch(0.66 0.18 28);
-  --severity-info: oklch(0.7 0.1 224);
-  --severity-low: oklch(0.72 0.12 166);
-  --severity-medium: oklch(0.78 0.13 82);
-  --severity-high: oklch(0.66 0.18 28);
-
-  --background: oklch(0.125 0.01 270);
-  --foreground: oklch(0.96 0.006 250);
-  --card: oklch(0.17 0.014 268);
-  --card-foreground: oklch(0.95 0.006 250);
-  --popover: oklch(0.17 0.014 268);
-  --popover-foreground: oklch(0.95 0.006 250);
-  --primary: oklch(0.74 0.14 172);
-  --primary-foreground: oklch(0.125 0.01 270);
-  --secondary: oklch(0.23 0.018 270);
-  --secondary-foreground: oklch(0.94 0.008 250);
-  --muted: oklch(0.22 0.016 270);
-  --muted-foreground: oklch(0.66 0.025 265);
-  --accent: oklch(0.76 0.12 84);
-  --accent-foreground: oklch(0.125 0.01 270);
-  --destructive: oklch(0.66 0.18 28);
-  --border: oklch(0.96 0.006 250 / 12%);
-  --input: oklch(0.96 0.006 250 / 16%);
-  --ring: oklch(0.74 0.14 172);
-  --chart-1: oklch(0.74 0.14 172);
-  --chart-2: oklch(0.76 0.12 84);
-  --chart-3: oklch(0.7 0.1 224);
-  --chart-4: oklch(0.72 0.12 326);
-  --chart-5: oklch(0.66 0.18 28);
-  --radius: 0.35rem;
-  --sidebar: oklch(0.155 0.012 270);
-  --sidebar-foreground: oklch(0.95 0.006 250);
-  --sidebar-primary: oklch(0.74 0.14 172);
-  --sidebar-primary-foreground: oklch(0.125 0.01 270);
-  --sidebar-accent: oklch(0.23 0.018 270);
-  --sidebar-accent-foreground: oklch(0.94 0.008 250);
-  --sidebar-border: oklch(0.96 0.006 250 / 12%);
-  --sidebar-ring: oklch(0.74 0.14 172);
-  --agent-grid-line: oklch(0.78 0.11 172 / 8%);
-  --agent-grid-strong: oklch(0.74 0.14 172 / 12%);
-  --agent-signal-start: oklch(0.74 0.14 172 / 0%);
-  --agent-signal-mid: oklch(0.74 0.14 172 / 12%);
-  --agent-signal-end: oklch(0.7 0.1 224 / 8%);
-  --harness-claude: oklch(0.76 0.13 66);
-  --harness-codex: oklch(0.74 0.14 172);
-  --harness-gemini: oklch(0.7 0.13 252);
-}
-
 @layer base {
+  :root,
+  .dark {
+    --status-pass: oklch(0.72 0.14 166);
+    --status-warn: oklch(0.78 0.13 82);
+    --status-fail: oklch(0.66 0.18 28);
+    --severity-info: oklch(0.7 0.1 224);
+    --severity-low: oklch(0.72 0.12 166);
+    --severity-medium: oklch(0.78 0.13 82);
+    --severity-high: oklch(0.66 0.18 28);
+
+    --background: oklch(0.125 0.01 270);
+    --foreground: oklch(0.96 0.006 250);
+    --card: oklch(0.17 0.014 268);
+    --card-foreground: oklch(0.95 0.006 250);
+    --popover: oklch(0.17 0.014 268);
+    --popover-foreground: oklch(0.95 0.006 250);
+    --primary: oklch(0.74 0.14 172);
+    --primary-foreground: oklch(0.125 0.01 270);
+    --secondary: oklch(0.23 0.018 270);
+    --secondary-foreground: oklch(0.94 0.008 250);
+    --muted: oklch(0.22 0.016 270);
+    --muted-foreground: oklch(0.66 0.025 265);
+    --accent: oklch(0.76 0.12 84);
+    --accent-foreground: oklch(0.125 0.01 270);
+    --destructive: oklch(0.66 0.18 28);
+    --border: oklch(0.96 0.006 250 / 12%);
+    --input: oklch(0.96 0.006 250 / 16%);
+    --ring: oklch(0.74 0.14 172);
+    --chart-1: oklch(0.74 0.14 172);
+    --chart-2: oklch(0.76 0.12 84);
+    --chart-3: oklch(0.7 0.1 224);
+    --chart-4: oklch(0.72 0.12 326);
+    --chart-5: oklch(0.66 0.18 28);
+    --radius: 0.35rem;
+    --sidebar: oklch(0.155 0.012 270);
+    --sidebar-foreground: oklch(0.95 0.006 250);
+    --sidebar-primary: oklch(0.74 0.14 172);
+    --sidebar-primary-foreground: oklch(0.125 0.01 270);
+    --sidebar-accent: oklch(0.23 0.018 270);
+    --sidebar-accent-foreground: oklch(0.94 0.008 250);
+    --sidebar-border: oklch(0.96 0.006 250 / 12%);
+    --sidebar-ring: oklch(0.74 0.14 172);
+    --agent-grid-line: oklch(0.78 0.11 172 / 8%);
+    --agent-grid-strong: oklch(0.74 0.14 172 / 12%);
+    --agent-signal-start: oklch(0.74 0.14 172 / 0%);
+    --agent-signal-mid: oklch(0.74 0.14 172 / 12%);
+    --agent-signal-end: oklch(0.7 0.1 224 / 8%);
+    --harness-claude: oklch(0.76 0.13 66);
+    --harness-codex: oklch(0.74 0.14 172);
+    --harness-gemini: oklch(0.7 0.13 252);
+  }
+
   * {
     @apply border-border outline-ring/50;
   }
