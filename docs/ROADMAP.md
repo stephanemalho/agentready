@@ -97,7 +97,7 @@ Exit criteria:
 
 ## Phase 4: SaaS MVP For Public Repositories
 
-Status: in progress. Hosting decision: Next.js on Vercel, Rust API (`server/`) on Render free tier with a GitHub Actions keep-alive, Postgres on Neon.
+Status: in progress. Hosting decision: Next.js on Vercel, Rust API (`server/`) on Render free tier, Postgres on Neon. No keep-alive cron: the web client wakes the API on page visit and shows its status (header dot, scan form disabled while waking).
 
 Goal: build a web UI where users paste a public GitHub repository URL and receive a readiness report.
 

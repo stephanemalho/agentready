@@ -23,10 +23,24 @@ export const statusTextClasses: Record<CheckStatus, string> = {
 };
 
 export const severityBadgeClasses: Record<Severity, string> = {
-  info: "border-severity-info text-severity-info",
-  low: "border-severity-low text-severity-low",
-  medium: "border-severity-medium text-severity-medium",
-  high: "border-severity-high text-severity-high",
+  info: "border-severity-info/40 bg-severity-info/10 text-severity-info",
+  low: "border-severity-low/40 bg-severity-low/10 text-severity-low",
+  medium: "border-severity-medium/40 bg-severity-medium/10 text-severity-medium",
+  high: "border-severity-high/40 bg-severity-high/10 text-severity-high",
+};
+
+export const statusDotClasses: Record<CheckStatus, string> = {
+  pass: "bg-status-pass",
+  warn: "bg-status-warn",
+  fail: "bg-status-fail",
+};
+
+export type HarnessTone = "claude" | "codex" | "gemini";
+
+export const harnessToneClasses: Record<HarnessTone, string> = {
+  claude: "border-harness-claude/30 bg-harness-claude/10 text-harness-claude",
+  codex: "border-harness-codex/30 bg-harness-codex/10 text-harness-codex",
+  gemini: "border-harness-gemini/30 bg-harness-gemini/10 text-harness-gemini",
 };
 
 export function scoreTextClass(score: number): string {

@@ -32,6 +32,9 @@ export function CopyCommandButton({ command }: CopyCommandButtonProps) {
       ) : (
         <Copy aria-hidden="true" className="size-4" />
       )}
+      <span aria-live="polite" className="sr-only">
+        {copied ? "Command copied" : ""}
+      </span>
     </button>
   );
 }

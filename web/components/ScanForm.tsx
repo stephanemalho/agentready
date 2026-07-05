@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Search, Zap } from "lucide-react";
 
 import { scanRepository, type ScanFormState } from "@/app/actions";
+import { useBackendStatus } from "@/components/BackendStatusProvider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,11 @@ export function ScanForm({ className }: ScanFormProps) {
     scanRepository,
     initialState,
   );
+  const backendStatus = useBackendStatus();
+  // "checking" stays enabled to avoid a disabled flash on every page load;
+  // only a confirmed waking/offline backend blocks the form.
+  const engineDown = backendStatus === "waking" || backendStatus === "offline";
+  const disabled = pending || engineDown;
 
   return (
     <form
@@ -37,13 +43,13 @@ export function ScanForm({ className }: ScanFormProps) {
             placeholder="github:owner/repo or https://github.com/owner/repo"
             required
             aria-label="GitHub repository to scan"
-            disabled={pending}
+            disabled={disabled}
             className="h-12 bg-card/70 pl-12 font-mono text-sm sm:h-14"
           />
         </div>
         <Button
           type="submit"
-          disabled={pending}
+          disabled={disabled}
           className="h-12 gap-2 px-6 text-base sm:h-14 sm:px-8"
         >
           <Zap aria-hidden="true" className="size-4" />
@@ -54,6 +60,20 @@ export function ScanForm({ className }: ScanFormProps) {
         <p className="text-muted-foreground text-sm">
           Fetching the repository from GitHub and running the readiness checks...
         </p>
+      )}
+      {backendStatus === "waking" && (
+        <p aria-live="polite" className="text-muted-foreground text-sm">
+          The scan engine is waking up (free hosting) - it should be ready in
+          about a minute...
+        </p>
+      )}
+      {backendStatus === "offline" && (
+        <Alert variant="destructive">
+          <AlertDescription>
+            The scan engine is unreachable right now. Please try again in a few
+            minutes.
+          </AlertDescription>
+        </Alert>
       )}
       {state.error && (
         <Alert variant="destructive">

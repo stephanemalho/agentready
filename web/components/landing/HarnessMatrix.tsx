@@ -1,14 +1,9 @@
 import { ChevronRight } from "lucide-react";
 
+import { harnessToneClasses } from "@/components/display";
 import { OutputPreview } from "@/components/landing/OutputPreview";
 import { SampleCheckResults } from "@/components/landing/SampleCheckResults";
 import { harnessProfiles } from "@/lib/landing";
-
-const toneClasses = {
-  claude: "border-harness-claude/30 bg-harness-claude/10 text-harness-claude",
-  codex: "border-harness-codex/30 bg-harness-codex/10 text-harness-codex",
-  gemini: "border-harness-gemini/30 bg-harness-gemini/10 text-harness-gemini",
-};
 
 export function HarnessMatrix() {
   return (
@@ -42,7 +37,7 @@ export function HarnessMatrix() {
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <span
-                    className={`grid size-9 shrink-0 place-items-center rounded-lg border text-xs font-black ${toneClasses[harness.tone]}`}
+                    className={`grid size-9 shrink-0 place-items-center rounded-lg border text-xs font-black ${harnessToneClasses[harness.tone]}`}
                   >
                     {harness.glyph}
                   </span>

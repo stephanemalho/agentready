@@ -40,16 +40,25 @@ Listens on `http://localhost:8080` (override with `PORT`). Sanity check: `curl l
 
 ### 3. Start the frontend
 
+One-time setup: create `web/.env.local` (git-ignored) so `API_URL` is always set:
+
+```bash
+echo "API_URL=http://localhost:8080" > web/.env.local
+```
+
+Then the daily command is just:
+
 ```bash
 cd web
-API_URL=http://localhost:8080 npm run dev
+npm run dev
 ```
 
 Open `http://localhost:3000`, paste `github:owner/repo`, scan. `API_URL` is server-only and required.
 
-If the UI says the scan service is not configured, stop the running `next dev`
-process and restart it with the `API_URL=...` prefix above. Next.js reads that
-environment variable at startup.
+If the UI says the scan service is not configured, `next dev` was started
+without `API_URL` (missing `.env.local`). Create the file above, then stop the
+dev server (Ctrl+C) and run `npm run dev` again — Next.js reads environment
+variables only at startup.
 
 ### 4. End of day
 
@@ -85,7 +94,7 @@ Database tests run only when `TEST_DATABASE_URL` is set (see `docs/agent-rules/t
 
 | Piece | Platform | Configuration |
 |---|---|---|
-| Backend API | Render (free tier) | Builds the root `Dockerfile`; env: `DATABASE_URL` (Neon), optional `GITHUB_TOKEN`; a GitHub Actions keep-alive will ping `/health` every 10 min to prevent spin-down |
+| Backend API | Render (free tier) | Builds the root `Dockerfile`; env: `DATABASE_URL` (Neon), optional `GITHUB_TOKEN`; no keep-alive cron — the web client wakes the service on page visit (health polling, see `docs/client/architecture.md`), so the first scan after a quiet period takes ~1 min |
 | Database | Neon (free Postgres) | Connection string goes into Render's `DATABASE_URL`; migrations run automatically at server startup |
 | Frontend | Vercel (hobby tier) | Root Directory = `web/`; env: `API_URL` = the Render service URL; Ignored Build Step so only `web/**` changes trigger deploys |
 
