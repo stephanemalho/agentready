@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -lt 1 ]]; then
-  echo "usage: scripts/create-agent-worktree.sh <harness> [path]" >&2
+if [[ $# -ne 2 ]]; then
+  echo "usage: scripts/create-agent-worktree.sh <harness> <explicit-path>" >&2
   echo "example: scripts/create-agent-worktree.sh codex ../repolens-codex" >&2
-  echo "note: checks out the harness's assigned branch; agents never create branches" >&2
+  echo "note: requires explicit maintainer approval and checks out an existing assigned branch" >&2
   exit 1
 fi
 
 HARNESS="$1"
-TARGET_PATH="${2:-../$(basename "$(pwd)")-${HARNESS}}"
+TARGET_PATH="$2"
 MAIN_BRANCH="${MAIN_BRANCH:-main}"
 REMOTE="${REMOTE:-origin}"
 

@@ -73,14 +73,17 @@ Run deterministic checks and report exact command results.
 
 ## Parallel Agent Workflow
 
-- Never run two coding agents in the same worktree.
-- Each model/harness must work in its own git worktree and branch.
+- Each active agent branch is owned by one harness: Codex, Claude Code, or Gemini CLI.
+- A harness coordinator may use multiple native agents or subagents on its assigned branch.
+- Parallel writing is allowed only when the coordinator assigns explicit, non-overlapping file ownership. Shared contracts and files have one writer at a time.
+- Requests to use agents, subagents, or parallel work never authorize creating a branch, clone, or worktree.
+- Additional worktrees require explicit approval from the human maintainer. The optional worktree helper exists only for that approved case.
+- Use each harness's native delegation model; do not assume Codex, Claude Code, and Gemini CLI expose identical agent capabilities or isolation.
 - Agents must never create branches. Each harness works only on its assigned branch:
   - Codex: `agent/codex/bootstrap/repolens-cli`
   - Claude Code: `agent/claude/bootstrap/repolens-cli`
   - Gemini CLI: `agent/gemini/bootstrap/repolens-cli`
-- If you are not on your assigned branch, switch to it with `git switch`; never create a replacement branch.
-- Each worktree must use separate local-only files when applicable: `.env.local`, database name, log folder, temp folder, cache folder, and ports.
+- If you are not on your assigned branch, stop and ask the maintainer to place the checkout on it; never create a replacement branch or switch away from unrelated work without approval.
 - Agents may propose changes, but final merge requires human review.
 - Agents must not merge or push directly to `main`.
 

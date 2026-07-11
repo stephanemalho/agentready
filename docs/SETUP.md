@@ -29,17 +29,21 @@ scripts/validate-agent-template.sh
 
 Fill placeholders before asking agents to implement production work.
 
-## Creating Agent Worktrees
+## Starting a Harness
 
-Each worktree checks out the harness's assigned branch. Agents never create branches.
+Use the existing checkout on the harness's assigned branch. The harness coordinator may run multiple native agents or subagents there, subject to the file-ownership rules in `docs/harness/multi-agent-workflow.md`.
+
+A request for parallel agents does not authorize a new branch, clone, or worktree.
+
+## Optional Maintainer-Approved Worktree
+
+Additional worktrees are not part of normal agent startup. If the human maintainer explicitly approves one, they may run:
 
 ```bash
 scripts/create-agent-worktree.sh codex ../repolens-codex
-scripts/create-agent-worktree.sh claude ../repolens-claude
-scripts/create-agent-worktree.sh gemini ../repolens-gemini
 ```
 
-Each worktree should have its own local env:
+The path is mandatory and intentional. Each explicitly approved worktree should have its own local env:
 
 ```bash
 cp .env.example .env.local

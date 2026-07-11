@@ -19,7 +19,7 @@ Git history or canonical rules.
 
 - `scripts/agent-preflight.sh`
 - `scripts/agent-sync-main.sh`
-- `scripts/create-agent-worktree.sh`
+- `scripts/create-agent-worktree.sh` (optional, only with explicit maintainer approval)
 - `scripts/validate-agent-template.sh`
 
 This layer catches wrong branches, stale branches, missing files, and accidental local settings commits.

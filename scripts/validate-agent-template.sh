@@ -41,6 +41,26 @@ if ! grep -q "docs/agent-rules" AGENTS.md; then
   exit 1
 fi
 
+if grep -q "Never run two coding agents in the same worktree" AGENTS.md; then
+  echo "error: AGENTS.md contains the obsolete one-agent-per-worktree rule" >&2
+  exit 1
+fi
+
+if grep -q '"worktrees"[[:space:]]*:[[:space:]]*true' .gemini/settings.json; then
+  echo "error: Gemini worktree isolation must not be enabled as the project default" >&2
+  exit 1
+fi
+
+if ! grep -q "multiple native agents or subagents" AGENTS.md; then
+  echo "error: AGENTS.md must allow harness-native multi-agent coordination" >&2
+  exit 1
+fi
+
+if ! grep -q 'TARGET_PATH="$2"' scripts/create-agent-worktree.sh; then
+  echo "error: worktree helper must require an explicit target path" >&2
+  exit 1
+fi
+
 if ! grep -q "@AGENTS.md" CLAUDE.md; then
   echo "error: CLAUDE.md must import AGENTS.md" >&2
   exit 1
