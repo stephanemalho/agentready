@@ -17,7 +17,8 @@ fi
 
 if [[ ! "${BRANCH}" =~ ^agent/(codex|claude|gemini)/bootstrap/repolens-cli$ ]]; then
   echo "error: branch '${BRANCH}' is not an assigned agent branch" >&2
-  echo "       agents must never create branches; switch to agent/<harness>/bootstrap/repolens-cli" >&2
+  echo "       stop and ask the maintainer to place this checkout on agent/<harness>/bootstrap/repolens-cli" >&2
+  echo "       do not create or switch branches without explicit maintainer approval" >&2
   exit 1
 fi
 
@@ -41,4 +42,3 @@ else
 fi
 
 echo "agent preflight passed"
-

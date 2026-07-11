@@ -125,7 +125,7 @@ stateless and history endpoints answer 503.
 
 This repository uses a multi-harness agent template. `AGENTS.md` is the canonical source of truth, and harness-specific files for Codex, Claude Code, and Gemini CLI should reference the shared project rules instead of duplicating them.
 
-Agents never create branches. Each harness works only on its assigned branch:
+Agents never create branches. Each active branch belongs to one harness, whose coordinator may run multiple native agents or subagents with non-overlapping file ownership:
 
 ```txt
 agent/codex/bootstrap/repolens-cli

@@ -4,7 +4,7 @@
 
 `main` is the protected integration branch.
 
-Agents must never create branches. Each harness works only on its assigned branch:
+Each active agent branch is owned by one harness. Agents must never create branches, and each harness works only on its assigned branch:
 
 ```txt
 agent/codex/bootstrap/repolens-cli
@@ -12,7 +12,11 @@ agent/claude/bootstrap/repolens-cli
 agent/gemini/bootstrap/repolens-cli
 ```
 
-If an agent is not on its assigned branch, it must switch to it with `git switch`, never create a new one.
+The harness coordinator may run multiple native agents or subagents on that branch. Parallel writers must have explicit, non-overlapping file ownership, and shared contracts or files must have one writer at a time.
+
+A request for agents, subagents, or parallel work does not authorize a new branch, clone, or worktree. Additional worktrees require explicit approval from the human maintainer. If a checkout is on the wrong branch, stop and ask the maintainer for direction rather than switching away from unrelated work.
+
+Harness-specific delegation and isolation behavior belongs in `docs/harness/`; do not impose one harness's agent model on another.
 
 ## Main Synchronization
 
@@ -50,4 +54,3 @@ If syncing with `main` creates conflicts, stop and report:
 - proposed resolution
 
 Do not invent a conflict resolution for domain logic without human review.
-

@@ -1,6 +1,6 @@
 ---
 topic: claude-code
-last_reviewed: 2026-07-04
+last_reviewed: 2026-07-11
 source_policy: official-docs-first
 staleness_limit_days: 30
 ---
@@ -25,6 +25,10 @@ Claude Code uses `CLAUDE.md` and `.claude/` files to load project context, setti
 - Safe project settings
 - Local settings examples
 
+## Native Agents
+
+Claude Code may use its native subagents on the current Claude branch. Follow the shared ownership rules in `docs/harness/multi-agent-workflow.md` while preserving Claude Code's own delegation and permission behavior.
+
 ## What Must Stay Neutral
 
 - Business rules
@@ -45,4 +49,3 @@ Claude Code uses `CLAUDE.md` and `.claude/` files to load project context, setti
 ## Warning
 
 Do not duplicate project rules here. `CLAUDE.md` imports `AGENTS.md`; keep it thin.
-

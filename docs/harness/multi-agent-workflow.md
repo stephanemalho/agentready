@@ -1,6 +1,6 @@
 ---
 topic: multi-agent-workflow
-last_reviewed: 2026-07-04
+last_reviewed: 2026-07-11
 source_policy: official-docs-first
 staleness_limit_days: 30
 ---
@@ -9,11 +9,11 @@ staleness_limit_days: 30
 
 ## Goal
 
-Allow multiple harnesses to work on the same project without conflicting worktrees, stale branches, or duplicated rule ownership.
+Allow each harness to coordinate multiple native agents on its assigned branch without stale branches, overlapping writes, or duplicated rule ownership.
 
 ## Branches
 
-Agents must never create branches. Each harness works only on its assigned branch:
+Each active branch is owned by one harness. Agents must never create branches, and each harness works only on its assigned branch:
 
 ```txt
 agent/codex/bootstrap/repolens-cli
@@ -23,13 +23,23 @@ agent/gemini/bootstrap/repolens-cli
 
 Keeping one long-running branch per harness is the accepted trade-off here; the sync contract below keeps it aligned with `origin/main`.
 
+## Native Agent Coordination
+
+The harness coordinator may run multiple agents or subagents using the harness's native capabilities. Codex, Claude Code, and Gemini CLI do not need to expose identical delegation, isolation, nesting, or tool behavior.
+
+Parallel writing is allowed only when the coordinator:
+
+- assigns explicit, non-overlapping files to each writer
+- keeps one writer responsible for shared contracts and shared files
+- integrates and validates the combined result on the harness branch
+
+Read-heavy exploration, review, and validation can be delegated without granting write ownership.
+
 ## Worktrees
 
-Each harness gets a separate worktree, checked out on its assigned branch.
+Agent or subagent delegation stays in the current checkout by default. A request for parallel work never implies creating a branch, clone, or worktree.
 
-```bash
-scripts/create-agent-worktree.sh codex ../repolens-codex
-```
+Additional worktrees are exceptional and require explicit maintainer approval. When approved, the maintainer may use `scripts/create-agent-worktree.sh <harness> <explicit-path>` to check out an existing assigned branch. The helper must not be treated as the default agent startup path.
 
 ## Sync Contract
 

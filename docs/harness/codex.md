@@ -1,6 +1,6 @@
 ---
 topic: codex
-last_reviewed: 2026-07-04
+last_reviewed: 2026-07-11
 source_policy: official-docs-first
 staleness_limit_days: 30
 ---
@@ -25,6 +25,10 @@ Codex uses `AGENTS.md` as the canonical entrypoint and `.codex/config.toml` as a
 - Project-specific instruction routing
 - Optional hooks/rules when they enforce Codex behavior
 
+## Native Agents
+
+Codex may coordinate native subagents on the current Codex branch. Follow the shared ownership rules in `docs/harness/multi-agent-workflow.md`; do not create worktrees merely because work is delegated.
+
 ## What Must Stay Neutral
 
 - Business rules
@@ -45,4 +49,3 @@ Codex uses `AGENTS.md` as the canonical entrypoint and `.codex/config.toml` as a
 ## Warning
 
 Do not duplicate project rules here. Reference neutral docs instead.
-

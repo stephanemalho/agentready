@@ -1,6 +1,6 @@
 ---
 topic: gemini-cli
-last_reviewed: 2026-07-04
+last_reviewed: 2026-07-11
 source_policy: official-docs-first
 staleness_limit_days: 30
 ---
@@ -25,6 +25,10 @@ Gemini CLI can load `GEMINI.md` context files and can be configured to read `AGE
 - Gemini custom commands
 - Optional Gemini policy/hook configuration
 
+## Native Agents
+
+Gemini CLI may use its native subagents on the current Gemini branch. Follow the shared ownership rules in `docs/harness/multi-agent-workflow.md`. Worktree isolation remains an optional Gemini capability, not the default project workflow.
+
 ## What Must Stay Neutral
 
 - Business rules
@@ -44,4 +48,3 @@ Gemini CLI can load `GEMINI.md` context files and can be configured to read `AGE
 ## Warning
 
 Do not duplicate project rules here. Reference neutral docs instead.
-
