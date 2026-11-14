@@ -62,7 +62,8 @@ jobs:
           if ! command -v cargo-audit >/dev/null 2>&1; then
             cargo install cargo-audit
           fi
-          cargo audit
+          # SQLx locks this optional SQLite driver, but this service enables PostgreSQL only.
+          cargo audit --ignore RUSTSEC-2026-0459
 
       - name: Test
         run: cargo test --workspace
