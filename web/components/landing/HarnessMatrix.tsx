@@ -8,7 +8,7 @@ import { harnessProfiles } from "@/lib/landing";
 export function HarnessMatrix() {
   return (
     <section className="bg-background relative isolate overflow-hidden border-t px-5 py-20 sm:py-24">
-      <div className="bg-agent-grid absolute inset-0 -z-10" />
+      <div className="bg-agent-atmosphere absolute inset-0 -z-10" />
       <div className="mx-auto grid w-full max-w-6xl min-w-0 gap-16 lg:grid-cols-2 lg:items-start">
         <div className="min-w-0">
           <p

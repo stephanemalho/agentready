@@ -9,8 +9,7 @@ export function HomeHero() {
       id="top"
       className="relative isolate scroll-mt-16 overflow-hidden border-b bg-background"
     >
-      <div className="absolute inset-0 -z-10 bg-agent-grid" />
-      <div className="absolute inset-x-0 top-0 -z-10 h-72 bg-agent-signal" />
+      <div className="absolute inset-0 -z-10 bg-agent-atmosphere" />
 
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-6xl flex-col items-center justify-center px-5 py-20 text-center sm:py-24 lg:py-28">
         <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2 font-mono text-sm font-semibold text-primary">

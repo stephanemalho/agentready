@@ -10,10 +10,9 @@ export function InstallCallout() {
     <section
       className="relative isolate overflow-hidden border-t bg-background px-5 py-20 sm:py-24"
     >
-      <div className="absolute inset-0 -z-10 bg-agent-grid" />
       <div className="mx-auto w-full max-w-6xl">
         <div className="relative overflow-hidden rounded-lg border bg-card/80 px-5 py-14 text-center sm:px-10 sm:py-20">
-          <div className="absolute inset-x-0 top-0 -z-10 h-32 bg-agent-signal" />
+          <div className="absolute inset-0 -z-10 bg-agent-atmosphere" />
           <p
             id="install"
             className="mb-4 scroll-mt-16 font-mono text-sm font-bold uppercase text-primary"
